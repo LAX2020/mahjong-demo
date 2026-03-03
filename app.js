@@ -128,6 +128,7 @@ const I18N = {
     tingSuggest: "听牌建议:",
     tingSuggestNone: "听牌建议: 当前无一打听牌",
     adviceHidden: "",
+    adviceHeaderBasic: "基础模式出牌建议",
     adviceHeader: "Riichi Lite 出牌建议",
     adviceFast: "最快和牌",
     adviceValue: "最高点数",
@@ -146,6 +147,7 @@ const I18N = {
     actionAdviceFmt: "{label} 速{speed} 价{value}",
     actionReasonHu: "当前可直接和牌, 优先和了。",
     actionReasonPass: "保留门清与立直路线, 价值更稳定。",
+    actionReasonPassBasic: "保留手牌弹性, 继续摸牌通常更稳。",
     actionReasonCallFast: "副露可提速, 更快进入可和状态。",
     actionReasonCallValue: "副露会损失部分打点潜力。",
     discardTo: "打",
@@ -231,6 +233,7 @@ const I18N = {
     tingSuggest: "Tenpai suggestions:",
     tingSuggestNone: "Tenpai suggestions: no one-discard tenpai route",
     adviceHidden: "",
+    adviceHeaderBasic: "Basic Discard Advice",
     adviceHeader: "Riichi Lite Discard Advice",
     adviceFast: "Fastest Win",
     adviceValue: "Highest Value",
@@ -249,6 +252,7 @@ const I18N = {
     actionAdviceFmt: "{label} S{speed} V{value}",
     actionReasonHu: "You can win now. Prioritize winning.",
     actionReasonPass: "Keeps menzen and riichi routes for stable value.",
+    actionReasonPassBasic: "Keeps hand flexibility and stable progression.",
     actionReasonCallFast: "Call speeds up hand progression.",
     actionReasonCallValue: "Open call reduces some value potential.",
     discardTo: "Discard",
@@ -334,6 +338,7 @@ const I18N = {
     tingSuggest: "聴牌提案:",
     tingSuggestNone: "聴牌提案: 一打聴牌ルートなし",
     adviceHidden: "",
+    adviceHeaderBasic: "基本モード打牌提案",
     adviceHeader: "Riichi Lite 打牌提案",
     adviceFast: "最速和了",
     adviceValue: "最高打点",
@@ -352,6 +357,7 @@ const I18N = {
     actionAdviceFmt: "{label} 速{speed} 価{value}",
     actionReasonHu: "今すぐ和了可能. 和了優先。",
     actionReasonPass: "門前と立直ルートを維持し, 価値が安定。",
+    actionReasonPassBasic: "手牌の柔軟性を維持し, 進行を安定。",
     actionReasonCallFast: "副露で速度が上がりやすい。",
     actionReasonCallValue: "副露で打点期待が一部下がる。",
     discardTo: "切る",
@@ -401,6 +407,7 @@ function getRuleDisplayName(ruleSet) {
 function applyRuleSet(ruleSet, persist = true) {
   const next = ruleSet === "riichi_lite" ? "riichi_lite" : "basic";
   state.ruleSet = next;
+  document.body.dataset.rule = next;
   if (el.ruleSelect) el.ruleSelect.value = next;
   if (persist) {
     try {
@@ -705,7 +712,7 @@ function getTenpaiAfterOneDrawUkeire(hand, meldCount, memoWins) {
   return { drawUkeire, bestWaitsCount: bestWaits.size };
 }
 
-function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoWins) {
+function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoWins, mode = "riichi_lite") {
   const originCounts = countTiles(hand14);
   const idx = hand14.indexOf(discard);
   const next13 = hand14.slice();
@@ -774,6 +781,18 @@ function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoW
     ukeire * 1.4 -
     discardRoleCost * 0.75;
 
+  const basicSpeedScore =
+    (dist === 0 ? 320 : dist === 1 ? 175 : 45) +
+    ukeire * 6.6 +
+    nearTenpaiUkeire * 2.8 +
+    waits.length * 7.5 +
+    nearWaits * 3.2 +
+    structureScore * 1.05 -
+    discardRoleCost * 1.15;
+
+  const finalSpeedScore = mode === "basic" ? basicSpeedScore : speedScore;
+  const finalValueScore = mode === "basic" ? basicSpeedScore : valueScore;
+
   return {
     discard,
     dist,
@@ -783,12 +802,12 @@ function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoW
     structureScore,
     flushPotential,
     doraCount,
-    speedScore,
-    valueScore,
+    speedScore: finalSpeedScore,
+    valueScore: finalValueScore,
   };
 }
 
-function getRiichiLiteAdvice(hand, melds, restrictDiscards = null) {
+function getDiscardAdvice(hand, melds, mode = "riichi_lite", restrictDiscards = null) {
   const meldCount = melds.length;
   const hasOpenMeld = melds.some((m) => m.type === "chi" || m.type === "pong" || m.type === "kong_open");
   const restrict = restrictDiscards ? new Set(restrictDiscards) : null;
@@ -799,7 +818,7 @@ function getRiichiLiteAdvice(hand, melds, restrictDiscards = null) {
     if (seen.has(d)) continue;
     seen.add(d);
     if (restrict && !restrict.has(d)) continue;
-    candidates.push(evaluateDiscardCandidate(hand, d, meldCount, hasOpenMeld, memoWins));
+    candidates.push(evaluateDiscardCandidate(hand, d, meldCount, hasOpenMeld, memoWins, mode));
   }
   if (candidates.length === 0) return null;
 
@@ -808,20 +827,25 @@ function getRiichiLiteAdvice(hand, melds, restrictDiscards = null) {
   return { fast, value };
 }
 
-function evaluatePassAction(hand, melds) {
+function evaluatePassAction(hand, melds, mode = "riichi_lite") {
   const meldCount = melds.length;
   const waits = getWinningTiles(hand, meldCount);
   const ukeire = calcUkeireForWaits(hand, waits);
+  const passReason = mode === "basic" ? tr("actionReasonPassBasic") : tr("actionReasonPass");
   if (waits.length > 0) {
-    return { speed: 220 + ukeire * 4, value: 185 + waits.length * 8, reason: tr("actionReasonPass") };
+    return {
+      speed: (mode === "basic" ? 240 : 220) + ukeire * 4,
+      value: (mode === "basic" ? 210 : 185) + waits.length * 8,
+      reason: passReason,
+    };
   }
   const oneStep = getTenpaiAfterOneDrawUkeire(hand, meldCount, new Map());
-  const speed = 80 + oneStep.drawUkeire * 1.2;
-  const value = 165 + oneStep.bestWaitsCount * 6;
-  return { speed, value, reason: tr("actionReasonPass") };
+  const speed = (mode === "basic" ? 92 : 80) + oneStep.drawUkeire * 1.2;
+  const value = (mode === "basic" ? 178 : 165) + oneStep.bestWaitsCount * 6;
+  return { speed, value, reason: passReason };
 }
 
-function evaluateCallAction(type, baseHand, melds, claimTile, pattern = null) {
+function evaluateCallAction(type, baseHand, melds, claimTile, pattern = null, mode = "riichi_lite") {
   const hand = baseHand.slice();
   const removeList = [];
   if (type === "pong") removeList.push(claimTile, claimTile);
@@ -854,7 +878,7 @@ function evaluateCallAction(type, baseHand, melds, claimTile, pattern = null) {
       if (avail === 0) continue;
       const handAfterDraw = hand.slice();
       handAfterDraw.push(d);
-      const adv = getRiichiLiteAdvice(handAfterDraw, nextMelds);
+      const adv = getDiscardAdvice(handAfterDraw, nextMelds, mode);
       if (!adv) continue;
       weightedSpeed += adv.fast.speedScore * avail;
       weightedValue += adv.value.valueScore * avail;
@@ -865,7 +889,7 @@ function evaluateCallAction(type, baseHand, melds, claimTile, pattern = null) {
       value = weightedValue / totalW - 12;
     }
   } else {
-    const adv = getRiichiLiteAdvice(hand, nextMelds);
+    const adv = getDiscardAdvice(hand, nextMelds, mode);
     if (adv) {
       speed = adv.fast.speedScore;
       value = adv.value.valueScore - 10;
@@ -875,23 +899,23 @@ function evaluateCallAction(type, baseHand, melds, claimTile, pattern = null) {
   return { speed, value, reason };
 }
 
-function buildClaimActionHints(options, claimTile) {
+function buildClaimActionHints(options, claimTile, mode = "riichi_lite") {
   const human = state.players[0];
   const evalu = [];
-  const basePass = evaluatePassAction(human.hand, human.melds);
+  const basePass = evaluatePassAction(human.hand, human.melds, mode);
   evalu.push({ key: "pass", speed: basePass.speed, value: basePass.value, reason: basePass.reason });
 
   if (options.pong) {
-    const e = evaluateCallAction("pong", human.hand, human.melds, claimTile);
+    const e = evaluateCallAction("pong", human.hand, human.melds, claimTile, null, mode);
     evalu.push({ key: "pong", speed: e.speed, value: e.value, reason: e.reason });
   }
   if (options.kong) {
-    const e = evaluateCallAction("kong", human.hand, human.melds, claimTile);
+    const e = evaluateCallAction("kong", human.hand, human.melds, claimTile, null, mode);
     evalu.push({ key: "kong", speed: e.speed, value: e.value, reason: e.reason });
   }
   if (options.chi?.length) {
     options.chi.forEach((p, idx) => {
-      const e = evaluateCallAction("chi", human.hand, human.melds, claimTile, p);
+      const e = evaluateCallAction("chi", human.hand, human.melds, claimTile, p, mode);
       evalu.push({ key: `chi_${idx}`, speed: e.speed, value: e.value, reason: e.reason });
     });
   }
@@ -1539,7 +1563,7 @@ function refreshHumanActions() {
 
   if (state.waitingClaim && state.claimOptions) {
     const { chi, pong, kong, hu } = state.claimOptions;
-    const hints = state.ruleSet === "riichi_lite" ? buildClaimActionHints(state.claimOptions, state.claimTile) : {};
+    const hints = buildClaimActionHints(state.claimOptions, state.claimTile, state.ruleSet);
 
     if (hu) {
       el.actionBar.appendChild(actionItem(actionButton(tr("ron"), [state.claimTile], () => claimHu()), hints.hu || ""));
@@ -1878,6 +1902,25 @@ function renderTingInfo() {
   }
 
   const wins = getWinningTiles(human.hand, human.melds.length);
+
+  if (state.ruleSet === "basic") {
+    let line = wins.length > 0 ? tr("tingNow", { n: wins.length }) : tr("tingNot");
+    if (state.currentPlayer === 0 && state.humanMustDiscard && !state.waitingClaim) {
+      const options = getDiscardToTenpaiOptions(human.hand, human.melds.length);
+      if (options.length > 0) {
+        const summary = options
+          .slice(0, 2)
+          .map((op) => `${tr("discardTo")} ${tileHtml(op.discard, "tiny")} ${tr("waitFor")} ${op.wins.length}`)
+          .join(" / ");
+        line += ` | ${tr("tingSuggest")} ${summary}`;
+      } else if (wins.length === 0) {
+        line += ` | ${tr("tingSuggestNone")}`;
+      }
+    }
+    el.tingInfo.innerHTML = `<div class="ting-row compact">${line}</div>`;
+    return;
+  }
+
   const rows = [];
 
   if (wins.length > 0) {
@@ -2016,23 +2059,26 @@ function renderResultInfo() {
 
 function renderAdviceInfo() {
   if (!el.adviceInfo) return;
-  if (state.ruleSet !== "riichi_lite") {
-    el.adviceInfo.innerHTML = "";
-    return;
-  }
+  const handLayout = document.getElementById("handLayout");
 
   const human = state.players[0];
   if (!human || state.gameOver || state.currentPlayer !== 0 || !state.humanMustDiscard || state.waitingClaim) {
+    el.adviceInfo.style.display = "none";
+    if (handLayout) handLayout.classList.add("no-advice");
     el.adviceInfo.innerHTML = "";
     return;
   }
 
   const restrict = state.pendingRiichi ? state.riichiDiscardCandidates : null;
-  const advice = getRiichiLiteAdvice(human.hand, human.melds, restrict);
+  const advice = getDiscardAdvice(human.hand, human.melds, state.ruleSet, restrict);
   if (!advice) {
+    el.adviceInfo.style.display = "none";
+    if (handLayout) handLayout.classList.add("no-advice");
     el.adviceInfo.innerHTML = "";
     return;
   }
+  el.adviceInfo.style.display = "";
+  if (handLayout) handLayout.classList.remove("no-advice");
 
   const renderCard = (title, data, reason) => {
     const waitsHtml = data.waits.map((id) => tileHtml(id, "tiny")).join("") || "-";
@@ -2049,6 +2095,25 @@ function renderAdviceInfo() {
   };
 
   const fastReason = advice.fast.dist === 0 ? tr("adviceReasonFast0") : tr("adviceReasonFast1");
+  if (state.ruleSet === "basic") {
+    el.adviceInfo.innerHTML = `
+      <div class="ting-row">${tr("adviceHeaderBasic")}</div>
+      <div class="advice-grid">
+        <div class="advice-card">
+          <div class="advice-title">${tr("adviceFast")}</div>
+          <div class="advice-line">${tr("adviceDiscard")} ${tileHtml(advice.fast.discard, "small")}</div>
+          <div class="advice-line">${tr("adviceMetricSpeed", {
+            dist: distLabel(advice.fast.dist),
+            ukeire: advice.fast.ukeire,
+            waits: advice.fast.waits.length,
+          })}</div>
+          <div class="advice-line">${fastReason}</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
   const valueReason = tr("adviceReasonValue");
   el.adviceInfo.innerHTML = `
     <div class="ting-row">${tr("adviceHeader")}</div>

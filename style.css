@@ -137,11 +137,17 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   box-shadow: inset 0 0 0 1px rgba(243, 244, 246, 0.7);
 }
 
+.hand-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
 .ting-info {
   margin: 4px 0 8px;
   color: var(--sub);
   font-size: 14px;
-  min-height: 34px;
+  min-height: 22px;
   line-height: 1.45;
 }
 
@@ -258,6 +264,12 @@ body[data-theme="dark"] .result-title {
   margin-bottom: 4px;
 }
 
+.ting-row.compact {
+  margin-bottom: 0;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
 .ting-discard-item {
   display: inline-flex;
   align-items: center;
@@ -356,8 +368,33 @@ body[data-theme="dark"] .meld b {
   font-size: 13px;
 }
 
+body[data-rule="basic"] #riichiInfo,
+body[data-rule="basic"] #expectInfo,
+body[data-rule="basic"] #waitValueInfo,
+body[data-rule="basic"] #resultInfo {
+  display: none;
+}
+
+body[data-rule="basic"] .hand-layout {
+  grid-template-columns: minmax(0, 1fr) 420px;
+  align-items: start;
+}
+
+body[data-rule="basic"] .hand-layout.no-advice {
+  grid-template-columns: 1fr;
+}
+
+body[data-rule="basic"] #adviceInfo {
+  margin: 0;
+}
+
+body[data-rule="basic"] #adviceInfo .advice-grid {
+  grid-template-columns: 1fr;
+}
+
 @media (max-width: 700px) {
   .table { grid-template-columns: 1fr; }
   .player.human { grid-column: 1; }
   .advice-grid { grid-template-columns: 1fr; }
+  body[data-rule="basic"] .hand-layout { grid-template-columns: 1fr; }
 }
