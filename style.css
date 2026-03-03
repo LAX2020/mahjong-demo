@@ -376,7 +376,7 @@ body[data-rule="basic"] #resultInfo {
 }
 
 body[data-rule="basic"] .hand-layout {
-  grid-template-columns: minmax(0, 1fr) 420px;
+  grid-template-columns: 1fr;
   align-items: start;
 }
 
@@ -385,11 +385,15 @@ body[data-rule="basic"] .hand-layout.no-advice {
 }
 
 body[data-rule="basic"] #adviceInfo {
-  margin: 0;
+  margin: 2px 0 10px;
 }
 
 body[data-rule="basic"] #adviceInfo .advice-grid {
   grid-template-columns: 1fr;
+}
+
+body[data-rule="basic"] #adviceInfo .advice-card {
+  max-width: 760px;
 }
 
 @media (max-width: 700px) {
