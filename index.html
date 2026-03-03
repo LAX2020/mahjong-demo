@@ -1,0 +1,67 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mahjong Demo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1 id="titleMain">Mahjong Demo</h1>
+    <p id="subText" class="sub">基础规则: 摸牌, 打牌, 吃, 碰, 杠, 简化胡牌判定(4面子+1雀头)</p>
+
+    <section class="topbar">
+      <button id="newGameBtn">新开一局</button>
+      <span id="ruleInfo">规则: Basic</span>
+      <span id="wallInfo">牌墙: -</span>
+      <span id="turnInfo">回合: -</span>
+      <span class="topbar-spacer"></span>
+      <label id="ruleLabel" class="theme-switch" for="ruleSelect">Rules</label>
+      <select id="ruleSelect" class="theme-select">
+        <option value="basic">Basic</option>
+        <option value="riichi_lite">Riichi Lite</option>
+      </select>
+      <label id="themeLabel" class="theme-switch" for="themeSelect">Theme</label>
+      <select id="themeSelect" class="theme-select">
+        <option value="regular">Regular</option>
+        <option value="dark">Dark</option>
+      </select>
+      <label id="langLabel" class="theme-switch" for="langSelect">Language</label>
+      <select id="langSelect" class="theme-select">
+        <option value="zh">中文</option>
+        <option value="en">English</option>
+        <option value="ja">日本語</option>
+      </select>
+    </section>
+
+    <section id="actionBar" class="actions"></section>
+
+    <section class="table">
+      <div class="player" id="p1"></div>
+      <div class="player" id="p2"></div>
+      <div class="player" id="p3"></div>
+      <div class="player human" id="p0"></div>
+    </section>
+
+    <section>
+      <h2 id="handTitle">你的手牌</h2>
+      <div id="riichiInfo" class="ting-info"></div>
+      <div id="expectInfo" class="ting-info"></div>
+      <div id="waitValueInfo" class="wait-value-info"></div>
+      <div id="tingInfo" class="ting-info">听牌提示: -</div>
+      <div id="hand" class="hand"></div>
+      <div id="kongBar" class="actions"></div>
+      <div id="adviceInfo" class="advice-info"></div>
+    </section>
+
+    <section>
+      <div id="resultInfo" class="result-info"></div>
+      <h2 id="logTitle">日志</h2>
+      <div id="log" class="log"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
