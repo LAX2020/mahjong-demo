@@ -89,6 +89,8 @@ const I18N = {
     selfDraw: "自摸胡",
     concealedKong: "暗杠",
     ron: "荣和",
+    ronBasic: "胡",
+    ronRiichi: "荣",
     kong: "杠",
     pong: "碰",
     chi: "吃",
@@ -102,6 +104,8 @@ const I18N = {
     logBotDiscard: "{name} 打出 {tile}",
     logPass: "你选择过.",
     logRon: "你荣和 {tile}, 对局结束.",
+    logRonBasic: "你胡 {tile}, 对局结束.",
+    logRonRiichi: "你荣 {tile}, 对局结束.",
     logPong: "你碰 {tile}.",
     logTsumo: "你自摸胡牌, 对局结束.",
     logMingKong: "你明杠 {tile}, 补牌后打出一张.",
@@ -194,6 +198,8 @@ const I18N = {
     selfDraw: "Tsumo",
     concealedKong: "Concealed Kong",
     ron: "Ron",
+    ronBasic: "Ron",
+    ronRiichi: "Ron",
     kong: "Kong",
     pong: "Pong",
     chi: "Chi",
@@ -207,6 +213,8 @@ const I18N = {
     logBotDiscard: "{name} discarded {tile}",
     logPass: "You passed.",
     logRon: "You won by Ron on {tile}. Round over.",
+    logRonBasic: "You won on {tile}. Round over.",
+    logRonRiichi: "You won by Ron on {tile}. Round over.",
     logPong: "You called Pong on {tile}.",
     logTsumo: "You won by Tsumo. Round over.",
     logMingKong: "You called open Kong on {tile}. Draw a supplement tile and discard.",
@@ -299,6 +307,8 @@ const I18N = {
     selfDraw: "ツモ",
     concealedKong: "暗槓",
     ron: "ロン",
+    ronBasic: "和了",
+    ronRiichi: "ロン",
     kong: "カン",
     pong: "ポン",
     chi: "チー",
@@ -312,6 +322,8 @@ const I18N = {
     logBotDiscard: "{name} は {tile} を切った",
     logPass: "スルーしました.",
     logRon: "{tile} でロン和了. 対局終了.",
+    logRonBasic: "{tile} で和了. 対局終了.",
+    logRonRiichi: "{tile} でロン和了. 対局終了.",
     logPong: "{tile} をポン.",
     logTsumo: "ツモ和了. 対局終了.",
     logMingKong: "{tile} を明槓. 補充牌を引いて打牌.",
@@ -410,6 +422,16 @@ function initTheme() {
 
 function getRuleDisplayName(ruleSet) {
   return ruleSet === "riichi_lite" ? tr("ruleRiichiLite") : tr("ruleBasic");
+}
+
+function getRonActionKey() {
+  if (state.ruleSet === "riichi_lite") return "ronRiichi";
+  return "ronBasic";
+}
+
+function getRonResultKey() {
+  if (state.ruleSet === "riichi_lite") return "logRonRiichi";
+  return "logRonBasic";
 }
 
 function applyRuleSet(ruleSet, persist = true) {
@@ -538,6 +560,22 @@ function startClock() {
   setInterval(renderClock, 1000);
 }
 
+function resolveLogVars(vars = {}) {
+  const out = {};
+  Object.entries(vars).forEach(([k, v]) => {
+    if (k.endsWith("Id")) {
+      const base = k.slice(0, -2);
+      if (base.toLowerCase().includes("tile")) out[base] = tileLabel(v);
+      else if (base.toLowerCase().includes("name") || base.toLowerCase().includes("actor")) {
+        out[base] = Number(v) === 0 ? tr("you") : tr("bot", { n: Number(v) });
+      } else out[base] = v;
+    } else {
+      out[k] = v;
+    }
+  });
+  return out;
+}
+
 function renderLogEntries() {
   if (!el.log) return;
   if (!state.logEntries.length) {
@@ -563,7 +601,8 @@ function renderLogEntries() {
           .join("");
         return `<div class="log-row"><span class="log-turn">#${row.idx}</span><span class="log-time">[${row.stamp}]</span><span class="log-round-actions">${actions}</span></div>`;
       }
-      const eventText = row.textKey ? tr(row.textKey, row.textVars || {}) : row.text || "";
+      const eventVars = resolveLogVars(row.textVars || {});
+      const eventText = row.textKey ? tr(row.textKey, eventVars) : row.text || "";
       const text = eventText ? `<span class="log-action">${escapeHtml(eventText)}</span>` : "";
       return `<div class="log-row"><span class="log-turn">#${row.idx}</span><span class="log-time">[${row.stamp}]</span>${text}</div>`;
     })
@@ -1677,6 +1716,18 @@ function endGame(msg) {
   renderAll();
 }
 
+function endGameI18n(key, vars = {}) {
+  state.gameOver = true;
+  state.humanMustDiscard = false;
+  state.waitingClaim = false;
+  state.claimTile = null;
+  state.claimFrom = null;
+  state.claimOptions = null;
+  logI18n(key, vars);
+  refreshHumanActions();
+  renderAll();
+}
+
 function refreshHumanActions() {
   el.actionBar.innerHTML = "";
   el.kongBar.innerHTML = "";
@@ -1731,7 +1782,7 @@ function refreshHumanActions() {
     const hints = buildClaimActionHints(state.claimOptions, state.claimTile, state.ruleSet);
 
     if (hu) {
-      el.actionBar.appendChild(actionItem(actionButton(tr("ron"), [state.claimTile], () => claimHu()), hints.hu || ""));
+      el.actionBar.appendChild(actionItem(actionButton(tr(getRonActionKey()), [state.claimTile], () => claimHu()), hints.hu || ""));
     }
 
     if (kong) {
@@ -1829,7 +1880,7 @@ function startTurn(playerIdx, needDraw) {
   }
 
   if (state.wall.length === 0) {
-    endGame(tr("logWallEmpty"));
+    endGameI18n("logWallEmpty");
     return;
   }
 
@@ -1878,7 +1929,7 @@ function runBotTurn(idx, needDraw) {
     if (needDraw) {
       const tile = drawTile();
       if (tile === null) {
-        endGame(tr("logWallEmpty"));
+        endGameI18n("logWallEmpty");
         return;
       }
       bot.hand.push(tile);
@@ -1886,7 +1937,7 @@ function runBotTurn(idx, needDraw) {
     }
 
     if (canPlayerWinNow(bot, "tsumo")) {
-      endGame(tr("logBotWin", { name: bot.name }));
+      endGameI18n("logBotWin", { nameId: idx });
       return;
     }
 
@@ -1923,8 +1974,8 @@ function claimHu() {
       : { ok: true, han: 0, fu: 0, points: 0, yaku: [] };
   if (r.ok) {
     state.lastResult = r;
-    logAction(0, "ron", [tile]);
-    endGame(tr("logRon", { tile: tileLabel(tile) }));
+    logAction(0, getRonActionKey(), [tile]);
+    endGameI18n(getRonResultKey(), { tileId: tile });
   }
 }
 
@@ -1938,7 +1989,7 @@ function finalizeHumanTsumo() {
     state.lastResult = null;
   }
   logAction(0, "selfDraw");
-  endGame(tr("logTsumo"));
+  endGameI18n("logTsumo");
 }
 
 function claimPong() {
@@ -1983,7 +2034,7 @@ function claimKong() {
 
   const draw = drawTile();
   if (draw === null) {
-    endGame(tr("logWallEmpty"));
+    endGameI18n("logWallEmpty");
     return;
   }
 
@@ -2034,7 +2085,7 @@ function doConcealedKong(tile) {
 
   const draw = drawTile();
   if (draw === null) {
-    endGame(tr("logWallEmpty"));
+    endGameI18n("logWallEmpty");
     return;
   }
 
