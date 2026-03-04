@@ -114,6 +114,20 @@ button {
 button:hover { filter: brightness(1.03); }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
 
+.nav-btn {
+  border: 1px solid #c68a2e;
+  background: linear-gradient(180deg, #ffd58d, #f2bc64);
+  color: #3c2500;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.nav-btn:hover { filter: brightness(1.03); }
+
 .table {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

@@ -1,0 +1,148 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>算番算符</title>
+  <link rel="stylesheet" href="calculator.css" />
+</head>
+<body>
+  <main class="container">
+    <section class="topbar">
+      <button id="backBtn" class="ghost">返回主页面</button>
+      <h1 id="pageTitle">算番算符</h1>
+      <span class="spacer"></span>
+      <label for="langSelect" id="langLabel">语言</label>
+      <select id="langSelect">
+        <option value="zh">中文</option>
+        <option value="en">English</option>
+        <option value="ja">日本語</option>
+      </select>
+      <label for="themeSelect" id="themeLabel">主题</label>
+      <select id="themeSelect">
+        <option value="regular">普通</option>
+        <option value="dark">夜间</option>
+      </select>
+      <label><input id="clockToggle" type="checkbox" checked /> <span id="clockLabel">时间</span></label>
+      <div id="clock" class="clock">
+        <div id="clockTime" class="time">--:--</div>
+        <div id="clockDate" class="date">----</div>
+      </div>
+    </section>
+
+    <p id="subText" class="sub">点击或文本都可以输入牌。文本自动同步图形输入。</p>
+
+    <section class="main-workspace">
+      <div class="left-panel">
+        <section class="card">
+          <h2 id="inputTitle">输入区</h2>
+          <div class="target-row">
+            <label><input type="radio" name="target" value="hand" checked /> <span id="targetHand">手牌</span></label>
+            <label><input type="radio" name="target" value="dora" /> <span id="targetDora">宝牌指示牌</span></label>
+            <label><input type="radio" name="target" value="ura" /> <span id="targetUra">里宝牌指示牌</span></label>
+            <label><input type="radio" name="target" value="win" /> <span id="targetWin">和牌牌</span></label>
+            <label><input id="autoSort" type="checkbox" checked /> <span id="autoSortLabel">自动排序</span></label>
+          </div>
+
+          <div class="option-row">
+            <label><span id="winTypeLabel">和牌方式</span>
+              <select id="winType">
+                <option value="ron">荣和</option>
+                <option value="tsumo">自摸</option>
+              </select>
+            </label>
+            <label><span id="seatLabel">自风</span>
+              <select id="seatWind">
+                <option value="E">东</option>
+                <option value="S">南</option>
+                <option value="W">西</option>
+                <option value="N">北</option>
+              </select>
+            </label>
+            <label><span id="roundLabel">场风</span>
+              <select id="roundWind">
+                <option value="E">东</option>
+                <option value="S">南</option>
+                <option value="W">西</option>
+                <option value="N">北</option>
+              </select>
+            </label>
+            <label><input id="dealer" type="checkbox" /> <span id="dealerLabel">我是庄家</span></label>
+            <label><input id="riichi" type="checkbox" /> <span id="riichiLabel">立直</span></label>
+            <label><input id="ippatsu" type="checkbox" /> <span id="ippatsuLabel">一发</span></label>
+            <label><input id="doubleRiichi" type="checkbox" /> <span id="doubleRiichiLabel">双立直</span></label>
+          </div>
+
+          <div class="option-row">
+            <span id="akaLabel">红宝牌</span>
+            <label><input id="aka5m" type="checkbox" /> 赤5万</label>
+            <label><input id="aka5p" type="checkbox" /> 赤5筒</label>
+            <label><input id="aka5s" type="checkbox" /> 赤5索</label>
+          </div>
+
+          <div class="tile-group">
+            <div class="tile-group-title" id="paletteTitle">点击牌面输入</div>
+            <div id="tilePalette"></div>
+          </div>
+
+          <div class="tile-group">
+            <div class="tile-group-title" id="handTitle">当前手牌</div>
+            <div class="hand-meta" id="handMeta">0/14</div>
+            <div id="handZone" class="hand-zone"></div>
+            <div class="option-row">
+              <button id="clearHandBtn" class="ghost">清空手牌</button>
+              <button id="clearDoraBtn" class="ghost">清空宝牌指示牌</button>
+              <button id="clearUraBtn" class="ghost">清空里宝牌指示牌</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card text-card">
+          <h2 id="textHeader">文本输入</h2>
+          <textarea id="textInput" class="textbox"></textarea>
+          <div class="option-row">
+            <button id="copyTextBtn" class="ghost">复制文本</button>
+            <button id="applyTextBtn" class="ghost">应用文本</button>
+          </div>
+          <div id="textError" class="error"></div>
+        </section>
+      </div>
+
+      <div class="right-panel">
+        <section class="card">
+          <h2 id="doraHeader">宝牌计算</h2>
+          <div id="doraCalc"></div>
+        </section>
+        <section class="card">
+          <h2 id="resultHeader">计算结果</h2>
+          <div id="result"></div>
+        </section>
+        <section class="card">
+          <h2 id="adviceHeader">出牌建议</h2>
+          <div id="advice"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top: 12px;">
+      <h2 id="rulesTitle">规则表（46条）</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th>
+              <th>名称</th>
+              <th>番数</th>
+              <th>是否可鸣牌</th>
+              <th>特殊规则</th>
+            </tr>
+          </thead>
+          <tbody id="rulesBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="calculator.js"></script>
+</body>
+</html>

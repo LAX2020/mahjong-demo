@@ -1,0 +1,284 @@
+﻿:root {
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --line: #d8deea;
+  --text: #132039;
+  --sub: #4d5f7b;
+  --accent: #d17d12;
+  --tile-bg: #eef3ff;
+}
+
+body[data-theme="dark"] {
+  --bg: #09142e;
+  --panel: #14264f;
+  --line: #2c4273;
+  --text: #e6eefc;
+  --sub: #a9bddf;
+  --accent: #f2b457;
+  --tile-bg: #19366f;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  color: var(--text);
+  background: radial-gradient(1100px 420px at 10% -10%, #fff 0%, var(--bg) 75%);
+}
+
+body[data-theme="dark"] {
+  background: radial-gradient(1200px 500px at 10% -10%, #1d3566 0%, var(--bg) 75%);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.topbar .spacer { flex: 1 1 auto; }
+
+h1 {
+  margin: 2px 0 8px;
+  font-size: 26px;
+}
+
+.sub {
+  margin: 0 0 12px;
+  color: var(--sub);
+}
+
+button,
+select {
+  border-radius: 8px;
+}
+
+button {
+  border: 1px solid #c68a2e;
+  background: linear-gradient(180deg, #ffd58d, #f2bc64);
+  color: #3c2500;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button.ghost {
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: var(--panel);
+}
+
+select,
+input,
+textarea {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  padding: 6px 8px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.main-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.9fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.left-panel,
+.right-panel {
+  min-width: 0;
+}
+
+.right-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.right-panel .card {
+  margin-bottom: 0;
+}
+
+.card h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: var(--accent);
+}
+
+.target-row,
+.option-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tile-group {
+  margin-bottom: 8px;
+}
+
+.tile-group-title {
+  color: var(--sub);
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.tile-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tile-btn {
+  border: 1px solid var(--line);
+  background: var(--tile-bg);
+  border-radius: 8px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.mj-tile {
+  display: inline-flex;
+  width: clamp(28px, 4vw, 42px);
+  height: clamp(42px, 6vw, 62px);
+}
+
+.mj-tile.small {
+  width: clamp(22px, 3vw, 30px);
+  height: clamp(33px, 4.5vw, 45px);
+}
+
+.mj-tile.tiny {
+  width: 20px;
+  height: 30px;
+}
+
+.mj-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.hand-zone {
+  min-height: 86px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.hand-meta {
+  color: var(--sub);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.textbox {
+  width: 100%;
+  min-height: 140px;
+  resize: vertical;
+  font-family: "Consolas", "SFMono-Regular", monospace;
+  line-height: 1.4;
+}
+
+.error {
+  color: #b42318;
+  min-height: 20px;
+  font-size: 13px;
+}
+
+.result-line {
+  margin: 4px 0;
+  color: var(--sub);
+}
+
+.result-title {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.dora-line {
+  margin: 4px 0;
+  color: var(--sub);
+  line-height: 1.5;
+}
+
+.dora-line b {
+  color: var(--text);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.tag {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  color: var(--sub);
+}
+
+.table-wrap {
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th,
+td {
+  border: 1px solid var(--line);
+  padding: 6px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  background: rgba(210, 218, 235, 0.25);
+}
+
+.clock {
+  text-align: right;
+  min-width: 120px;
+}
+
+.clock .time {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.clock .date {
+  font-size: 14px;
+  color: var(--sub);
+}
+
+@media (max-width: 980px) {
+  .main-workspace {
+    grid-template-columns: 1fr;
+  }
+}
