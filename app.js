@@ -49,6 +49,7 @@ const el = {
   adviceInfo: document.getElementById("adviceInfo"),
   resultInfo: document.getElementById("resultInfo"),
   hand: document.getElementById("hand"),
+  handActionsCol: document.getElementById("handActionsCol"),
   actionBar: document.getElementById("actionBar"),
   kongBar: document.getElementById("kongBar"),
   log: document.getElementById("log"),
@@ -448,6 +449,7 @@ function applyLang(lang) {
   }
   renderStaticText();
   refreshPlayerNames();
+  renderLogEntries();
   if (state.players.length === 4) {
     renderAll();
     refreshHumanActions();
@@ -547,17 +549,22 @@ function renderLogEntries() {
       if (row.kind === "round") {
         const actions = row.actions
           .map((a, i) => {
-            const actor = a.actor ? `<span class="log-actor">${escapeHtml(a.actor)}</span>` : "";
-            const action = a.action ? `<span class="log-action">${escapeHtml(a.action)}</span>` : "";
+            const actorName =
+              Number.isInteger(a.actorId) ? (a.actorId === 0 ? tr("you") : tr("bot", { n: a.actorId })) : a.actor || "";
+            const actor = actorName ? `<span class="log-actor">${escapeHtml(actorName)}</span>` : "";
+            const actionText = a.actionKey ? tr(a.actionKey) : a.action || "";
+            const action = actionText ? `<span class="log-action">${escapeHtml(actionText)}</span>` : "";
             const tiles = a.tiles?.length ? `<span class="log-tiles">${a.tiles.map((id) => tileHtml(id, "tiny")).join("")}</span>` : "";
-            const extra = a.extra ? `<span class="log-extra">${escapeHtml(a.extra)}</span>` : "";
+            const extraText = a.extraKey ? tr(a.extraKey) : a.extra || "";
+            const extra = extraText ? `<span class="log-extra">${escapeHtml(extraText)}</span>` : "";
             const sep = i > 0 ? `<span class="log-sep">|</span>` : "";
             return `${sep}<span class="log-chunk">${actor}${action}${tiles}${extra}</span>`;
           })
           .join("");
         return `<div class="log-row"><span class="log-turn">#${row.idx}</span><span class="log-time">[${row.stamp}]</span><span class="log-round-actions">${actions}</span></div>`;
       }
-      const text = row.text ? `<span class="log-action">${escapeHtml(row.text)}</span>` : "";
+      const eventText = row.textKey ? tr(row.textKey, row.textVars || {}) : row.text || "";
+      const text = eventText ? `<span class="log-action">${escapeHtml(eventText)}</span>` : "";
       return `<div class="log-row"><span class="log-turn">#${row.idx}</span><span class="log-time">[${row.stamp}]</span>${text}</div>`;
     })
     .join("");
@@ -580,7 +587,7 @@ function trimLogLimit() {
   }
 }
 
-function pushEventLog(text) {
+function pushEventLog({ text = "", key = "", vars = {} }) {
   state.logCounter += 1;
   state.logEntries.push({
     id: `e_${state.logCounter}_${Date.now()}`,
@@ -588,6 +595,8 @@ function pushEventLog(text) {
     stamp: nowStamp(),
     kind: "event",
     text,
+    textKey: key,
+    textVars: vars,
   });
   trimLogLimit();
   renderLogEntries();
@@ -605,7 +614,17 @@ function beginRoundLog(actor, action, tiles = [], extra = "") {
     idx: state.logCounter,
     stamp: nowStamp(),
     kind: "round",
-    actions: [{ actor, action, tiles: Array.isArray(tiles) ? tiles.slice() : [], extra }],
+    actions: [
+      {
+        actorId: Number.isInteger(actor) ? actor : null,
+        actor: Number.isInteger(actor) ? "" : actor,
+        actionKey: action,
+        action: "",
+        tiles: Array.isArray(tiles) ? tiles.slice() : [],
+        extraKey: extra || "",
+        extra: "",
+      },
+    ],
   };
   state.logEntries.push(entry);
   state.currentRoundLogId = entry.id;
@@ -619,7 +638,15 @@ function appendRoundLog(actor, action, tiles = [], extra = "") {
     beginRoundLog(actor, action, tiles, extra);
     return;
   }
-  row.actions.push({ actor, action, tiles: Array.isArray(tiles) ? tiles.slice() : [], extra });
+  row.actions.push({
+    actorId: Number.isInteger(actor) ? actor : null,
+    actor: Number.isInteger(actor) ? "" : actor,
+    actionKey: action,
+    action: "",
+    tiles: Array.isArray(tiles) ? tiles.slice() : [],
+    extraKey: extra || "",
+    extra: "",
+  });
   renderLogEntries();
 }
 
@@ -632,7 +659,11 @@ function logAction(actor, action, tiles = [], extra = "", startRound = false) {
 }
 
 function log(msg) {
-  pushEventLog(msg);
+  pushEventLog({ text: msg });
+}
+
+function logI18n(key, vars = {}) {
+  pushEventLog({ key, vars });
 }
 
 function makeWall() {
@@ -1115,7 +1146,7 @@ function initGame() {
   sortHand(state.players[0].hand);
   state.humanMustDiscard = true;
   state.doraIndicator = drawTile();
-  log(tr("logNew"));
+  logI18n("logNew");
 
   renderAll();
   refreshHumanActions();
@@ -1649,6 +1680,7 @@ function endGame(msg) {
 function refreshHumanActions() {
   el.actionBar.innerHTML = "";
   el.kongBar.innerHTML = "";
+  if (el.handActionsCol) el.handActionsCol.classList.remove("active");
 
   if (state.gameOver) return;
 
@@ -1676,7 +1708,7 @@ function refreshHumanActions() {
           actionButton(tr("riichi"), [], () => {
             state.pendingRiichi = true;
             state.riichiDiscardCandidates = ri.discards.slice();
-            log(tr("logRiichiDeclare"));
+            logI18n("logRiichiDeclare");
             renderAll();
             refreshHumanActions();
           })
@@ -1728,6 +1760,11 @@ function refreshHumanActions() {
     pass.onclick = passClaim;
     el.actionBar.appendChild(actionItem(pass, hints.pass || ""));
   }
+
+  if (el.handActionsCol) {
+    const hasAny = el.actionBar.children.length > 0 || el.kongBar.children.length > 0;
+    el.handActionsCol.classList.toggle("active", hasAny);
+  }
 }
 
 function nextPlayer(i) {
@@ -1755,9 +1792,9 @@ function humanDiscard(index) {
     human.riichiDiscardIndex = human.discards.length - 1;
     state.pendingRiichi = false;
     state.riichiDiscardCandidates = [];
-    logAction(human.name, tr("riichi"), [tile], "", true);
+    logAction(0, "riichi", [tile], "", true);
   } else {
-    logAction(human.name, tr("discardTo"), [tile], "", true);
+    logAction(0, "discardTo", [tile], "", true);
   }
 
   processDiscard(0, tile);
@@ -1817,7 +1854,7 @@ function startTurn(playerIdx, needDraw) {
       if (lastTile !== undefined) {
         human.hand.pop();
         human.discards.push(lastTile);
-        logAction(human.name, tr("discardTo"), [lastTile], tr("riichi"), true);
+        logAction(0, "discardTo", [lastTile], "riichi", true);
         state.humanMustDiscard = false;
         processDiscard(0, lastTile);
         return;
@@ -1856,7 +1893,7 @@ function runBotTurn(idx, needDraw) {
     const discardIdx = Math.floor(Math.random() * bot.hand.length);
     const [tile] = bot.hand.splice(discardIdx, 1);
     bot.discards.push(tile);
-    logAction(bot.name, tr("discardTo"), [tile]);
+    logAction(idx, "discardTo", [tile]);
 
     processDiscard(idx, tile);
     refreshHumanActions();
@@ -1871,7 +1908,7 @@ function passClaim() {
   state.claimTile = null;
   state.claimFrom = null;
   state.claimOptions = null;
-  logAction(state.players[0].name, tr("pass"));
+  logAction(0, "pass");
   refreshHumanActions();
   startTurn(next, true);
 }
@@ -1886,7 +1923,7 @@ function claimHu() {
       : { ok: true, han: 0, fu: 0, points: 0, yaku: [] };
   if (r.ok) {
     state.lastResult = r;
-    logAction(human.name, tr("ron"), [tile]);
+    logAction(0, "ron", [tile]);
     endGame(tr("logRon", { tile: tileLabel(tile) }));
   }
 }
@@ -1900,7 +1937,7 @@ function finalizeHumanTsumo() {
   } else {
     state.lastResult = null;
   }
-  logAction(human.name, tr("selfDraw"));
+  logAction(0, "selfDraw");
   endGame(tr("logTsumo"));
 }
 
@@ -1921,7 +1958,7 @@ function claimPong() {
   state.currentPlayer = 0;
   state.humanMustDiscard = true;
 
-  logAction(human.name, tr("pong"), [tile, tile, tile]);
+  logAction(0, "pong", [tile, tile, tile]);
   refreshHumanActions();
   renderAll();
 }
@@ -1942,7 +1979,7 @@ function claimKong() {
   state.claimOptions = null;
   state.currentPlayer = 0;
 
-  logAction(human.name, tr("kong"), [tile, tile, tile, tile]);
+  logAction(0, "kong", [tile, tile, tile, tile]);
 
   const draw = drawTile();
   if (draw === null) {
@@ -1981,7 +2018,7 @@ function claimChi(patternIndex) {
   state.currentPlayer = 0;
   state.humanMustDiscard = true;
 
-  logAction(human.name, tr("chi"), pattern);
+  logAction(0, "chi", pattern);
   refreshHumanActions();
   renderAll();
 }
@@ -2003,7 +2040,7 @@ function doConcealedKong(tile) {
 
   human.hand.push(draw);
   sortHand(human.hand);
-  logAction(human.name, tr("concealedKong"), [tile, tile, tile, tile, draw]);
+  logAction(0, "concealedKong", [tile, tile, tile, tile, draw]);
 
   state.humanMustDiscard = true;
   refreshHumanActions();

@@ -39,8 +39,6 @@
       </div>
     </section>
 
-    <section id="actionBar" class="actions"></section>
-
     <section class="table">
       <div class="player" id="p1"></div>
       <div class="player" id="p2"></div>
@@ -48,17 +46,22 @@
       <div class="player human" id="p0"></div>
     </section>
 
-    <section>
-      <h2 id="handTitle">你的手牌</h2>
-      <div id="riichiInfo" class="ting-info"></div>
-      <div id="expectInfo" class="ting-info"></div>
-      <div id="waitValueInfo" class="wait-value-info"></div>
-      <div id="tingInfo" class="ting-info">听牌提示: -</div>
-      <div id="handLayout" class="hand-layout">
-        <div id="hand" class="hand"></div>
-        <div id="adviceInfo" class="advice-info"></div>
+    <section class="hand-main-layout">
+      <div class="hand-main-left">
+        <h2 id="handTitle">你的手牌</h2>
+        <div id="riichiInfo" class="ting-info"></div>
+        <div id="expectInfo" class="ting-info"></div>
+        <div id="waitValueInfo" class="wait-value-info"></div>
+        <div id="tingInfo" class="ting-info">听牌提示: -</div>
+        <div id="handLayout" class="hand-layout">
+          <div id="hand" class="hand"></div>
+          <div id="adviceInfo" class="advice-info"></div>
+        </div>
       </div>
-      <div id="kongBar" class="actions"></div>
+      <div id="handActionsCol" class="hand-actions-col">
+        <section id="actionBar" class="actions"></section>
+        <section id="kongBar" class="actions"></section>
+      </div>
     </section>
 
     <section>

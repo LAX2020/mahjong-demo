@@ -162,6 +162,34 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   gap: 10px;
 }
 
+.hand-main-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.hand-main-left {
+  min-width: 0;
+}
+
+.hand-actions-col {
+  display: none;
+  min-width: 260px;
+}
+
+.hand-actions-col.active {
+  display: block;
+}
+
+.hand-actions-col .actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 .ting-info {
   margin: 4px 0 8px;
   color: var(--sub);
@@ -494,4 +522,10 @@ body[data-rule="basic"] #adviceInfo .advice-card {
   body[data-rule="basic"] .hand-layout { grid-template-columns: 1fr; }
   .clock-time { font-size: 20px; }
   .clock-date { font-size: 18px; }
+}
+
+@media (min-width: 980px) {
+  .hand-main-layout {
+    grid-template-columns: minmax(0, 1fr) 290px;
+  }
 }
