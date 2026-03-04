@@ -18,7 +18,12 @@ const state = {
   claimFrom: null,
   claimOptions: null,
   humanMustDiscard: false,
+  logEntries: [],
+  logCounter: 0,
+  currentRoundLogId: null,
 };
+
+const LOG_LIMIT = 60;
 
 const el = {
   newGameBtn: document.getElementById("newGameBtn"),
@@ -35,6 +40,8 @@ const el = {
   ruleInfo: document.getElementById("ruleInfo"),
   wallInfo: document.getElementById("wallInfo"),
   turnInfo: document.getElementById("turnInfo"),
+  clockTime: document.getElementById("clockTime"),
+  clockDate: document.getElementById("clockDate"),
   riichiInfo: document.getElementById("riichiInfo"),
   expectInfo: document.getElementById("expectInfo"),
   waitValueInfo: document.getElementById("waitValueInfo"),
@@ -496,11 +503,136 @@ function refreshPlayerNames() {
   });
 }
 
-function log(msg) {
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function nowStamp() {
   const t = new Date();
-  const stamp = `${String(t.getMinutes()).padStart(2, "0")}:${String(t.getSeconds()).padStart(2, "0")}`;
-  el.log.textContent += `[${stamp}] ${msg}\n`;
+  return `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}:${String(t.getSeconds()).padStart(2, "0")}`;
+}
+
+function clockParts() {
+  const t = new Date();
+  return {
+    hm: `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}`,
+    ymd: `${t.getFullYear()}/${t.getMonth() + 1}/${t.getDate()}`,
+  };
+}
+
+function renderClock() {
+  const p = clockParts();
+  if (el.clockTime) el.clockTime.textContent = p.hm;
+  if (el.clockDate) el.clockDate.textContent = p.ymd;
+}
+
+function startClock() {
+  renderClock();
+  setInterval(renderClock, 1000);
+}
+
+function renderLogEntries() {
+  if (!el.log) return;
+  if (!state.logEntries.length) {
+    el.log.innerHTML = "";
+    return;
+  }
+  el.log.innerHTML = state.logEntries
+    .map((row) => {
+      if (row.kind === "round") {
+        const actions = row.actions
+          .map((a, i) => {
+            const actor = a.actor ? `<span class="log-actor">${escapeHtml(a.actor)}</span>` : "";
+            const action = a.action ? `<span class="log-action">${escapeHtml(a.action)}</span>` : "";
+            const tiles = a.tiles?.length ? `<span class="log-tiles">${a.tiles.map((id) => tileHtml(id, "tiny")).join("")}</span>` : "";
+            const extra = a.extra ? `<span class="log-extra">${escapeHtml(a.extra)}</span>` : "";
+            const sep = i > 0 ? `<span class="log-sep">|</span>` : "";
+            return `${sep}<span class="log-chunk">${actor}${action}${tiles}${extra}</span>`;
+          })
+          .join("");
+        return `<div class="log-row"><span class="log-turn">#${row.idx}</span><span class="log-time">[${row.stamp}]</span><span class="log-round-actions">${actions}</span></div>`;
+      }
+      const text = row.text ? `<span class="log-action">${escapeHtml(row.text)}</span>` : "";
+      return `<div class="log-row"><span class="log-turn">#${row.idx}</span><span class="log-time">[${row.stamp}]</span>${text}</div>`;
+    })
+    .join("");
   el.log.scrollTop = el.log.scrollHeight;
+}
+
+function clearLog() {
+  state.logEntries = [];
+  state.logCounter = 0;
+  state.currentRoundLogId = null;
+  renderLogEntries();
+}
+
+function trimLogLimit() {
+  if (state.logEntries.length > LOG_LIMIT) {
+    state.logEntries = state.logEntries.slice(state.logEntries.length - LOG_LIMIT);
+    if (state.currentRoundLogId && !state.logEntries.some((x) => x.id === state.currentRoundLogId)) {
+      state.currentRoundLogId = null;
+    }
+  }
+}
+
+function pushEventLog(text) {
+  state.logCounter += 1;
+  state.logEntries.push({
+    id: `e_${state.logCounter}_${Date.now()}`,
+    idx: state.logCounter,
+    stamp: nowStamp(),
+    kind: "event",
+    text,
+  });
+  trimLogLimit();
+  renderLogEntries();
+}
+
+function getCurrentRoundEntry() {
+  if (!state.currentRoundLogId) return null;
+  return state.logEntries.find((x) => x.id === state.currentRoundLogId) || null;
+}
+
+function beginRoundLog(actor, action, tiles = [], extra = "") {
+  state.logCounter += 1;
+  const entry = {
+    id: `r_${state.logCounter}_${Date.now()}`,
+    idx: state.logCounter,
+    stamp: nowStamp(),
+    kind: "round",
+    actions: [{ actor, action, tiles: Array.isArray(tiles) ? tiles.slice() : [], extra }],
+  };
+  state.logEntries.push(entry);
+  state.currentRoundLogId = entry.id;
+  trimLogLimit();
+  renderLogEntries();
+}
+
+function appendRoundLog(actor, action, tiles = [], extra = "") {
+  const row = getCurrentRoundEntry();
+  if (!row) {
+    beginRoundLog(actor, action, tiles, extra);
+    return;
+  }
+  row.actions.push({ actor, action, tiles: Array.isArray(tiles) ? tiles.slice() : [], extra });
+  renderLogEntries();
+}
+
+function logAction(actor, action, tiles = [], extra = "", startRound = false) {
+  if (startRound) {
+    beginRoundLog(actor, action, tiles, extra);
+    return;
+  }
+  appendRoundLog(actor, action, tiles, extra);
+}
+
+function log(msg) {
+  pushEventLog(msg);
 }
 
 function makeWall() {
@@ -562,7 +694,8 @@ function tileAssetName(id) {
 
 function tileHtml(id, size = "small") {
   const src = `assets/tiles-photo/${tileAssetName(id)}`;
-  return `<span class="mj-tile ${size}" title="${tileLabel(id)}"><img class="mj-tile-img" src="${src}" alt="${tileLabel(id)}"></span>`;
+  const special = id === 33 ? " tile-haku" : "";
+  return `<span class="mj-tile ${size}${special}" title="${tileLabel(id)}"><img class="mj-tile-img" src="${src}" alt="${tileLabel(id)}"></span>`;
 }
 
 function actionButton(label, tiles, onClick) {
@@ -969,7 +1102,7 @@ function initGame() {
   state.pendingRiichi = false;
   state.riichiDiscardCandidates = [];
   state.lastResult = null;
-  el.log.textContent = "";
+  clearLog();
 
   for (let r = 0; r < 13; r += 1) {
     for (let p = 0; p < 4; p += 1) {
@@ -1622,9 +1755,9 @@ function humanDiscard(index) {
     human.riichiDiscardIndex = human.discards.length - 1;
     state.pendingRiichi = false;
     state.riichiDiscardCandidates = [];
-    log(tr("logRiichiDone", { tile: tileLabel(tile) }));
+    logAction(human.name, tr("riichi"), [tile], "", true);
   } else {
-    log(tr("logDiscardYou", { tile: tileLabel(tile) }));
+    logAction(human.name, tr("discardTo"), [tile], "", true);
   }
 
   processDiscard(0, tile);
@@ -1640,13 +1773,6 @@ function processDiscard(from, tile) {
       state.claimTile = tile;
       state.claimFrom = from;
       state.claimOptions = options;
-      log(
-        tr("logOps", {
-          ops: [options.hu ? tr("ron") : "", options.kong ? tr("kong") : "", options.pong ? tr("pong") : "", options.chi.length ? tr("chi") : ""]
-            .filter(Boolean)
-            .join("/"),
-        })
-      );
       refreshHumanActions();
       renderAll();
       return;
@@ -1675,7 +1801,6 @@ function startTurn(playerIdx, needDraw) {
       const tile = drawTile();
       state.players[0].hand.push(tile);
       sortHand(state.players[0].hand);
-      log(tr("logDrawYou", { tile: tileLabel(tile) }));
     }
 
     state.humanMustDiscard = true;
@@ -1692,7 +1817,7 @@ function startTurn(playerIdx, needDraw) {
       if (lastTile !== undefined) {
         human.hand.pop();
         human.discards.push(lastTile);
-        log(tr("logRiichiTsumogiri", { tile: tileLabel(lastTile) }));
+        logAction(human.name, tr("discardTo"), [lastTile], tr("riichi"), true);
         state.humanMustDiscard = false;
         processDiscard(0, lastTile);
         return;
@@ -1731,7 +1856,7 @@ function runBotTurn(idx, needDraw) {
     const discardIdx = Math.floor(Math.random() * bot.hand.length);
     const [tile] = bot.hand.splice(discardIdx, 1);
     bot.discards.push(tile);
-    log(tr("logBotDiscard", { name: bot.name, tile: tileLabel(tile) }));
+    logAction(bot.name, tr("discardTo"), [tile]);
 
     processDiscard(idx, tile);
     refreshHumanActions();
@@ -1746,7 +1871,7 @@ function passClaim() {
   state.claimTile = null;
   state.claimFrom = null;
   state.claimOptions = null;
-  log(tr("logPass"));
+  logAction(state.players[0].name, tr("pass"));
   refreshHumanActions();
   startTurn(next, true);
 }
@@ -1761,6 +1886,7 @@ function claimHu() {
       : { ok: true, han: 0, fu: 0, points: 0, yaku: [] };
   if (r.ok) {
     state.lastResult = r;
+    logAction(human.name, tr("ron"), [tile]);
     endGame(tr("logRon", { tile: tileLabel(tile) }));
   }
 }
@@ -1774,6 +1900,7 @@ function finalizeHumanTsumo() {
   } else {
     state.lastResult = null;
   }
+  logAction(human.name, tr("selfDraw"));
   endGame(tr("logTsumo"));
 }
 
@@ -1794,7 +1921,7 @@ function claimPong() {
   state.currentPlayer = 0;
   state.humanMustDiscard = true;
 
-  log(tr("logPong", { tile: tileLabel(tile) }));
+  logAction(human.name, tr("pong"), [tile, tile, tile]);
   refreshHumanActions();
   renderAll();
 }
@@ -1815,7 +1942,7 @@ function claimKong() {
   state.claimOptions = null;
   state.currentPlayer = 0;
 
-  log(tr("logMingKong", { tile: tileLabel(tile) }));
+  logAction(human.name, tr("kong"), [tile, tile, tile, tile]);
 
   const draw = drawTile();
   if (draw === null) {
@@ -1854,7 +1981,7 @@ function claimChi(patternIndex) {
   state.currentPlayer = 0;
   state.humanMustDiscard = true;
 
-  log(tr("logChi", { tiles: pattern.map((x) => tileLabel(x)).join("-") }));
+  logAction(human.name, tr("chi"), pattern);
   refreshHumanActions();
   renderAll();
 }
@@ -1876,7 +2003,7 @@ function doConcealedKong(tile) {
 
   human.hand.push(draw);
   sortHand(human.hand);
-  log(tr("logAnKong", { tile: tileLabel(tile), draw: tileLabel(draw) }));
+  logAction(human.name, tr("concealedKong"), [tile, tile, tile, tile, draw]);
 
   state.humanMustDiscard = true;
   refreshHumanActions();
@@ -1904,20 +2031,31 @@ function renderTingInfo() {
   const wins = getWinningTiles(human.hand, human.melds.length);
 
   if (state.ruleSet === "basic") {
-    let line = wins.length > 0 ? tr("tingNow", { n: wins.length }) : tr("tingNot");
+    const rows = [];
+    if (wins.length > 0) {
+      const winTiles = wins.map((id) => tileHtml(id, "tiny")).join("");
+      rows.push(`<div class="ting-row">${tr("tingNow", { n: wins.length })} ${winTiles}</div>`);
+    } else {
+      rows.push(`<div class="ting-row">${tr("tingNot")}</div>`);
+    }
+
     if (state.currentPlayer === 0 && state.humanMustDiscard && !state.waitingClaim) {
       const options = getDiscardToTenpaiOptions(human.hand, human.melds.length);
       if (options.length > 0) {
-        const summary = options
-          .slice(0, 2)
+        const optionHtml = options
           .map((op) => `${tr("discardTo")} ${tileHtml(op.discard, "tiny")} ${tr("waitFor")} ${op.wins.length}`)
-          .join(" / ");
-        line += ` | ${tr("tingSuggest")} ${summary}`;
+          .map((txt, idx) => {
+            const waits = options[idx].wins.map((id) => tileHtml(id, "tiny")).join("");
+            return `<span class="ting-discard-item">${txt} ${waits}</span>`;
+          })
+          .join("");
+        rows.push(`<div class="ting-row">${tr("tingSuggest")} ${optionHtml}</div>`);
       } else if (wins.length === 0) {
-        line += ` | ${tr("tingSuggestNone")}`;
+        rows.push(`<div class="ting-row">${tr("tingSuggestNone")}</div>`);
       }
     }
-    el.tingInfo.innerHTML = `<div class="ting-row compact">${line}</div>`;
+
+    el.tingInfo.innerHTML = rows.join("");
     return;
   }
 
@@ -2158,4 +2296,5 @@ el.newGameBtn.addEventListener("click", initGame);
 initTheme();
 initLang();
 initRuleSet();
+startClock();
 initGame();
