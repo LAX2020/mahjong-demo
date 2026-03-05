@@ -5,6 +5,13 @@ const DRAGONS = ["中", "發", "白"];
 const state = {
   players: [],
   wall: [],
+  deadWall: [],
+  doraIndicators: [],
+  uraIndicators: [],
+  openDoraCount: 1,
+  kanCount: 0,
+  deadSupplementIndex: 0,
+  initialLiveWallCount: 0,
   currentPlayer: 0,
   lang: "zh",
   ruleSet: "basic",
@@ -19,6 +26,7 @@ const state = {
   claimOptions: null,
   humanMustDiscard: false,
   lastDrawTile: null,
+  lastDrawFromDeadWall: false,
   logEntries: [],
   logCounter: 0,
   currentRoundLogId: null,
@@ -52,6 +60,7 @@ const el = {
   tingInfo: document.getElementById("tingInfo"),
   adviceInfo: document.getElementById("adviceInfo"),
   resultInfo: document.getElementById("resultInfo"),
+  roundStatePanel: document.getElementById("roundStatePanel"),
   hand: document.getElementById("hand"),
   handActionsCol: document.getElementById("handActionsCol"),
   actionBar: document.getElementById("actionBar"),
@@ -134,7 +143,9 @@ const I18N = {
     logRiichiTsumogiri: "立直中摸切 {tile}.",
     resultTitle: "和牌结算",
     resultHanFu: "{han}番 {fu}符",
+    resultLimit: "打点: {limit}",
     resultPoints: "得点: {points}",
+    resultPointLabel: "分摊: {label}",
     resultYaku: "役种: {yaku}",
     waitValueTitle: "听牌点数预期:",
     waitValueItem: "{han}番{fu}符 {points}点",
@@ -182,6 +193,12 @@ const I18N = {
     actionReasonCallValue: "副露会损失部分打点潜力。",
     autoHu: "自动和牌",
     autoTsumogiri: "自动摸切",
+    statePanelTitle: "对局状态",
+    wallProgress: "牌山进度: 已摸{used}/{total}, 剩余{remain}",
+    doraOpen: "宝牌指示",
+    uraOpen: "里宝牌指示",
+    deadWallInfo: "王牌: 14张（杠补牌剩余{left}）",
+    basicWallInfo: "基础模式: 无王牌/宝牌，136张牌持续消耗",
     discardTo: "打",
     waitFor: "听",
     meldTypeChi: "吃",
@@ -254,7 +271,9 @@ const I18N = {
     logRiichiTsumogiri: "Riichi tsumogiri {tile}.",
     resultTitle: "Win Result",
     resultHanFu: "{han} han {fu} fu",
+    resultLimit: "Limit: {limit}",
     resultPoints: "Points: {points}",
+    resultPointLabel: "Breakdown: {label}",
     resultYaku: "Yaku: {yaku}",
     waitValueTitle: "Wait value estimate:",
     waitValueItem: "{han} han {fu} fu {points} pts",
@@ -302,6 +321,12 @@ const I18N = {
     actionReasonCallValue: "Open call reduces some value potential.",
     autoHu: "Auto Win",
     autoTsumogiri: "Auto Tsumogiri",
+    statePanelTitle: "Round State",
+    wallProgress: "Wall progress: used {used}/{total}, remain {remain}",
+    doraOpen: "Dora Indicators",
+    uraOpen: "Ura Indicators",
+    deadWallInfo: "Dead wall: 14 tiles (rinshan left {left})",
+    basicWallInfo: "Basic mode: no dead wall / dora, 136-tile live wall",
     discardTo: "Discard",
     waitFor: "wait",
     meldTypeChi: "Chi",
@@ -375,6 +400,8 @@ const I18N = {
     resultTitle: "和了結果",
     resultHanFu: "{han}翻 {fu}符",
     resultPoints: "得点: {points}",
+    resultLimit: "打点: {limit}",
+    resultPointLabel: "内訳: {label}",
     resultYaku: "役: {yaku}",
     waitValueTitle: "待ち牌点数見込み:",
     waitValueItem: "{han}翻{fu}符 {points}点",
@@ -422,6 +449,12 @@ const I18N = {
     actionReasonCallValue: "副露で打点期待が一部下がる。",
     autoHu: "自動和了",
     autoTsumogiri: "自動ツモ切り",
+    statePanelTitle: "局面情報",
+    wallProgress: "山進行: 消費{used}/{total}, 残り{remain}",
+    doraOpen: "ドラ表示牌",
+    uraOpen: "裏ドラ表示牌",
+    deadWallInfo: "王牌: 14枚（嶺上補充残り{left}）",
+    basicWallInfo: "基本モード: 王牌/ドラなし、136枚を消費",
     discardTo: "切る",
     waitFor: "待ち",
     meldTypeChi: "チー",
@@ -766,8 +799,84 @@ function makeWall() {
   return wall;
 }
 
-function drawTile() {
+function setupWallWithDeadWall() {
+  const full = makeWall();
+  state.deadWall = full.splice(0, 14);
+  state.wall = full;
+  state.initialLiveWallCount = state.wall.length;
+  state.deadSupplementIndex = 0;
+  state.kanCount = 0;
+  state.openDoraCount = 1;
+  state.doraIndicators = state.deadWall.slice(4, 9);
+  state.uraIndicators = state.deadWall.slice(9, 14);
+}
+
+function setupRoundResources() {
+  if (state.ruleSet === "riichi_lite") {
+    setupWallWithDeadWall();
+    state.doraIndicator = state.doraIndicators[0] ?? null;
+    return;
+  }
+  state.wall = makeWall();
+  state.deadWall = [];
+  state.doraIndicators = [];
+  state.uraIndicators = [];
+  state.openDoraCount = 0;
+  state.kanCount = 0;
+  state.deadSupplementIndex = 0;
+  state.initialLiveWallCount = state.wall.length;
+  state.doraIndicator = null;
+}
+
+function drawLiveTile() {
   return state.wall.pop() ?? null;
+}
+
+function drawRinshanTile() {
+  const idx = state.deadSupplementIndex;
+  if (idx < 0 || idx >= 4) return null;
+  const tile = state.deadWall[idx];
+  state.deadWall[idx] = null;
+  state.deadSupplementIndex += 1;
+  return tile ?? null;
+}
+
+function drawTile() {
+  return drawLiveTile();
+}
+
+function getOpenedDoraIndicators() {
+  return state.doraIndicators.slice(0, Math.max(0, Math.min(5, state.openDoraCount)));
+}
+
+function getOpenedUraIndicators() {
+  return state.uraIndicators.slice(0, Math.max(0, Math.min(5, state.openDoraCount)));
+}
+
+function getWallProgress() {
+  const total = state.initialLiveWallCount || 0;
+  const remain = state.wall.length;
+  const used = Math.max(0, total - remain);
+  const ratio = total > 0 ? remain / total : 0;
+  return { total, remain, used, ratio };
+}
+
+function getRinshanRemain() {
+  return Math.max(0, 4 - state.deadSupplementIndex);
+}
+
+function yakuText(result) {
+  if (!result || !Array.isArray(result.yaku)) return "-";
+  return result.yaku
+    .map((y) => (typeof y === "string" ? y : `${y.name}(${y.han})`))
+    .join(", ") || "-";
+}
+
+function pointTotal(result) {
+  if (!result) return 0;
+  if (result.point && typeof result.point.total === "number") return result.point.total;
+  if (typeof result.points === "number") return result.points;
+  return 0;
 }
 
 function sortHand(hand) {
@@ -994,8 +1103,8 @@ function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoW
   const yakuhaiPotential = honorCounts.reduce((s, c) => s + (c >= 2 ? 1 : 0), 0);
   const menzenPotential = hasOpenMeld ? 0 : 1;
   const pairPotential = profile.pairCount;
-  const doraTile = state.doraIndicator !== null ? nextDoraFromIndicator(state.doraIndicator) : -1;
-  const doraCount = doraTile >= 0 ? next13.filter((t) => t === doraTile).length : 0;
+  const openedDoraTiles = getOpenedDoraIndicators().map((ind) => nextDoraFromIndicator(ind));
+  const doraCount = openedDoraTiles.reduce((sum, d) => sum + next13.filter((t) => t === d).length, 0);
 
   const flushPotential =
     profile.honorCount === 0 && profile.dominantCount >= 9
@@ -1020,17 +1129,16 @@ function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoW
     for (const w of waits) {
       const avail = Math.max(0, 4 - nextCounts[w]);
       if (avail <= 0) continue;
-      const r = RiichiEngine.evaluateRiichiLite({
-        tiles: [...next13, w],
-        winType: "ron",
-        winTile: w,
-        melds,
-        riichi: !!state.players?.[0]?.riichi,
-        doraIndicators: state.doraIndicator === null ? [] : [state.doraIndicator]
-      });
+      const fakePlayer = {
+        ...(state.players?.[0] || {}),
+        melds: melds.slice(),
+        riichi: !!state.players?.[0]?.riichi
+      };
+      const r = evaluateRiichiLiteWin(fakePlayer, [...next13, w], "ron", w);
       if (!r.ok) continue;
-      if (r.points > bestPoint) bestPoint = r.points;
-      weighted += r.points * avail;
+      const pts = pointTotal(r);
+      if (pts > bestPoint) bestPoint = pts;
+      weighted += pts * avail;
       weight += avail;
     }
     if (weight > 0) expectedPoint = weighted / weight;
@@ -1090,7 +1198,7 @@ function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoW
 function getDiscardAdvice(hand, melds, mode = "riichi_lite", restrictDiscards = null) {
   const meldCount = melds.length;
   const human = state.players[0] || { riichi: false, melds: [] };
-  const doraTiles = state.doraIndicator === null ? [] : [nextDoraFromIndicator(state.doraIndicator)];
+  const doraTiles = getOpenedDoraIndicators().map((ind) => nextDoraFromIndicator(ind));
 
   const getWins = (handN, mc) => {
     const needMelds = 4 - mc;
@@ -1171,7 +1279,7 @@ function evaluateTenpaiValueAfterCall(hand10, melds, mode = "riichi_lite") {
     const r = evaluateRiichiLiteWin(fakePlayer, hand10.concat([w]), "ron", w);
     if (!r.ok) continue;
     waitsViable.push(w);
-    const pts = r.points || 0;
+    const pts = pointTotal(r);
     if (pts > bestPoint) bestPoint = pts;
     const avail = Math.max(0, 4 - counts[w]);
     if (avail > 0) {
@@ -1400,10 +1508,11 @@ function initGame() {
     hand: [],
     discards: [],
     melds: [],
+    dealer: i === 0,
     riichi: false,
     riichiDiscardIndex: -1,
   }));
-  state.wall = makeWall();
+  setupRoundResources();
   state.currentPlayer = 0;
   state.gameOver = false;
   state.waitingClaim = false;
@@ -1412,6 +1521,7 @@ function initGame() {
   state.claimOptions = null;
   state.humanMustDiscard = false;
   state.lastDrawTile = null;
+  state.lastDrawFromDeadWall = false;
   state.pendingRiichi = false;
   state.riichiDiscardCandidates = [];
   state.lastResult = null;
@@ -1419,15 +1529,15 @@ function initGame() {
 
   for (let r = 0; r < 13; r += 1) {
     for (let p = 0; p < 4; p += 1) {
-      state.players[p].hand.push(drawTile());
+      state.players[p].hand.push(drawLiveTile());
     }
   }
   for (const p of state.players) sortHand(p.hand);
 
-  state.players[0].hand.push(drawTile());
+  state.players[0].hand.push(drawLiveTile());
   sortHand(state.players[0].hand);
   state.humanMustDiscard = true;
-  state.doraIndicator = drawTile();
+  state.doraIndicator = state.ruleSet === "riichi_lite" ? (state.doraIndicators[0] ?? null) : null;
   logI18n("logNew");
 
   renderAll();
@@ -1499,6 +1609,7 @@ function renderAll() {
   renderTingInfo();
   renderAdviceInfo();
   renderResultInfo();
+  renderRoundStatePanel();
 }
 
 function isSuit(id) {
@@ -1680,13 +1791,36 @@ function getAllTilesForScore(player, handWithWin) {
 }
 
 function evaluateRiichiLiteWin(player, handWithWin, winType, winTile) {
-  return RiichiEngine.evaluateRiichiLite({
+  const inputTile = winTile === null ? handWithWin[handWithWin.length - 1] : winTile;
+  const openedDora = getOpenedDoraIndicators();
+  const openedUra = getOpenedUraIndicators();
+  const rinshan = winType === "tsumo" && !!state.lastDrawFromDeadWall;
+  const haitei = winType === "tsumo" && state.wall.length === 0;
+  const houtei = winType === "ron" && state.wall.length === 0;
+  return RiichiEngine.evaluateRules46({
     tiles: handWithWin,
     winType,
-    winTile: winTile === null ? handWithWin[handWithWin.length - 1] : winTile,
-    melds: player.melds,
-    riichi: !!player.riichi,
-    doraIndicators: state.doraIndicator === null ? [] : [state.doraIndicator]
+    winTile: inputTile,
+    dealer: !!player.dealer,
+    doraIndicators: openedDora,
+    uraIndicators: player.riichi ? openedUra : [],
+    state: {
+      seatWind: "E",
+      roundWind: "E",
+      dealer: !!player.dealer,
+      riichi: !!player.riichi,
+      doubleRiichi: false,
+      ippatsu: false,
+      aka5m: false,
+      aka5p: false,
+      aka5s: false,
+      chankan: false,
+      rinshan,
+      haitei,
+      houtei,
+      tenhou: false,
+      chiihou: false
+    }
   });
 }
 
@@ -1999,6 +2133,7 @@ function humanDiscard(index) {
     logAction(0, "discardTo", [tile], "", true);
   }
   state.lastDrawTile = null;
+  state.lastDrawFromDeadWall = false;
 
   processDiscard(0, tile);
 }
@@ -2030,6 +2165,7 @@ function startTurn(playerIdx, needDraw) {
     state.pendingRiichi = false;
     state.riichiDiscardCandidates = [];
     state.lastDrawTile = null;
+    state.lastDrawFromDeadWall = false;
   }
 
   if (state.wall.length === 0) {
@@ -2039,8 +2175,9 @@ function startTurn(playerIdx, needDraw) {
 
   if (playerIdx === 0) {
     state.lastDrawTile = null;
+    state.lastDrawFromDeadWall = false;
     if (needDraw) {
-      const tile = drawTile();
+      const tile = drawLiveTile();
       if (tile === null) {
         endGameI18n("logWallEmpty");
         return;
@@ -2081,6 +2218,7 @@ function startTurn(playerIdx, needDraw) {
         logAction(0, "discardTo", [tsumogiriTile], "riichi", true);
         state.humanMustDiscard = false;
         state.lastDrawTile = null;
+        state.lastDrawFromDeadWall = false;
         processDiscard(0, tsumogiriTile);
         return;
       }
@@ -2102,7 +2240,7 @@ function runBotTurn(idx, needDraw) {
     let drawTileForTurn = null;
 
     if (needDraw) {
-      const tile = drawTile();
+      const tile = drawLiveTile();
       if (tile === null) {
         endGameI18n("logWallEmpty");
         return;
@@ -2208,14 +2346,20 @@ function claimKong() {
 
   logAction(0, "kong", [tile, tile, tile, tile]);
 
-  const draw = drawTile();
+  const draw = state.ruleSet === "riichi_lite" ? drawRinshanTile() : drawLiveTile();
   if (draw === null) {
     endGameI18n("logWallEmpty");
     return;
   }
 
+  if (state.ruleSet === "riichi_lite") {
+    state.kanCount = Math.min(4, state.kanCount + 1);
+    state.openDoraCount = Math.min(5, 1 + state.kanCount);
+  }
   human.hand.push(draw);
   sortHand(human.hand);
+  state.lastDrawTile = draw;
+  state.lastDrawFromDeadWall = state.ruleSet === "riichi_lite";
   state.humanMustDiscard = true;
 
   refreshHumanActions();
@@ -2259,16 +2403,22 @@ function doConcealedKong(tile) {
   for (let i = 0; i < 4; i += 1) removeOne(human.hand, tile);
   human.melds.push({ type: "kong_closed", tiles: [tile, tile, tile, tile] });
 
-  const draw = drawTile();
+  const draw = state.ruleSet === "riichi_lite" ? drawRinshanTile() : drawLiveTile();
   if (draw === null) {
     endGameI18n("logWallEmpty");
     return;
   }
 
+  if (state.ruleSet === "riichi_lite") {
+    state.kanCount = Math.min(4, state.kanCount + 1);
+    state.openDoraCount = Math.min(5, 1 + state.kanCount);
+  }
   human.hand.push(draw);
   sortHand(human.hand);
   logAction(0, "concealedKong", [tile, tile, tile, tile, draw]);
 
+  state.lastDrawTile = draw;
+  state.lastDrawFromDeadWall = state.ruleSet === "riichi_lite";
   state.humanMustDiscard = true;
   refreshHumanActions();
   renderAll();
@@ -2357,8 +2507,10 @@ function renderRiichiAndExpectInfo() {
     } else {
       const human = state.players[0];
       const status = state.pendingRiichi ? tr("riichiPending") : human?.riichi ? tr("riichiOn") : tr("riichiOff");
-      const doraTile = state.doraIndicator !== null ? nextDoraFromIndicator(state.doraIndicator) : null;
-      const doraText = doraTile !== null ? tr("doraInfo", { ind: tileLabel(state.doraIndicator), dora: tileLabel(doraTile) }) : "";
+      const opened = getOpenedDoraIndicators();
+      const head = opened.length > 0 ? opened[0] : null;
+      const doraTile = head !== null && head !== undefined ? nextDoraFromIndicator(head) : null;
+      const doraText = doraTile !== null ? tr("doraInfo", { ind: tileLabel(head), dora: tileLabel(doraTile) }) : "";
       el.riichiInfo.textContent = `${status}${doraText ? " | " + doraText : ""}`;
     }
   }
@@ -2376,13 +2528,13 @@ function renderRiichiAndExpectInfo() {
   if (canHu(human.hand, human.melds.length)) {
     const r = evaluateRiichiLiteWin(human, human.hand.slice(), "tsumo");
     if (r.ok) {
-      el.expectInfo.textContent = tr("expectNow", { han: r.han, yaku: r.yaku.join(", ") || "-" });
+      el.expectInfo.textContent = tr("expectNow", { han: r.han, yaku: yakuText(r) });
       return;
     }
   }
   const best = estimateMaxHanPotential(human);
   if (best) {
-    el.expectInfo.textContent = tr("expectMax", { han: best.han, yaku: best.yaku.join(", ") || "-" });
+    el.expectInfo.textContent = tr("expectMax", { han: best.han, yaku: yakuText(best) });
   } else {
     el.expectInfo.textContent = tr("expectNone");
   }
@@ -2414,7 +2566,7 @@ function renderWaitValueInfo() {
       let best = 0;
       for (const w of waits) {
         const r = evaluateRiichiLiteWin({ ...human, riichi: true }, [...next, w], "ron", w);
-        if (r.ok && r.points > best) best = r.points;
+        if (r.ok && pointTotal(r) > best) best = pointTotal(r);
       }
       items.push(`<span class="wait-item">${tr("waitValuePendingItem", { tile: tileLabel(d), n: waits.length, points: best })}</span>`);
     }
@@ -2432,7 +2584,7 @@ function renderWaitValueInfo() {
     .map((w) => {
       const r = evaluateRiichiLiteWin(human, [...human.hand, w], "ron", w);
       if (!r.ok) return { wait: w, han: 0, fu: 0, points: 0 };
-      return { wait: w, han: r.han, fu: r.fu, points: r.points };
+      return { wait: w, han: r.han, fu: r.fu, points: pointTotal(r) };
     })
     .sort((a, b) => b.points - a.points || b.han - a.han || a.wait - b.wait);
 
@@ -2449,12 +2601,64 @@ function renderResultInfo() {
     return;
   }
   const r = state.lastResult;
+  const totalPoints = pointTotal(r);
+  const pointLabel = r?.point?.label || "-";
+  const limitLine = r.limitName ? `<div class="result-line">${tr("resultLimit", { limit: r.limitName })}</div>` : "";
   el.resultInfo.innerHTML = `
     <div class="result-card">
       <div class="result-title">${tr("resultTitle")}</div>
       <div class="result-line">${tr("resultHanFu", { han: r.han, fu: r.fu })}</div>
-      <div class="result-line">${tr("resultPoints", { points: r.points })}</div>
-      <div class="result-line">${tr("resultYaku", { yaku: r.yaku.join(", ") || "-" })}</div>
+      ${limitLine}
+      <div class="result-line">${tr("resultPoints", { points: totalPoints })}</div>
+      <div class="result-line">${tr("resultPointLabel", { label: pointLabel })}</div>
+      <div class="result-line">${tr("resultYaku", { yaku: yakuText(r) })}</div>
+    </div>
+  `;
+}
+
+function renderRoundStatePanel() {
+  if (!el.roundStatePanel) return;
+  const prog = getWallProgress();
+  const pct = Math.max(0, Math.min(100, prog.total > 0 ? (prog.remain / prog.total) * 100 : 0));
+  const lowClass = pct <= 20 ? " low" : "";
+  let extra = `<div class="wall-meta">${tr("basicWallInfo")}</div>`;
+  if (state.ruleSet === "riichi_lite") {
+    const backTile = tileHtml(-1, "tiny");
+    const doraTiles = new Array(5).fill(0).map((_, i) => {
+      if (i < state.openDoraCount) {
+        const ind = state.doraIndicators[i];
+        return ind === null || ind === undefined ? backTile : tileHtml(ind, "tiny");
+      }
+      return backTile;
+    }).join("");
+    const uraTiles = new Array(5).fill(0).map((_, i) => {
+      if (state.gameOver && state.lastResult?.ok && state.players[0]?.riichi && i < state.openDoraCount) {
+        const ind = state.uraIndicators[i];
+        return ind === null || ind === undefined ? backTile : tileHtml(ind, "tiny");
+      }
+      return backTile;
+    }).join("");
+    extra = `
+      <div class="wall-meta">${tr("deadWallInfo", { left: getRinshanRemain() })}</div>
+      <div class="dora-grid">
+        <div class="dora-box">
+          <div class="dora-box-title">${tr("doraOpen")}</div>
+          <div class="dora-tiles">${doraTiles}</div>
+        </div>
+        <div class="dora-box">
+          <div class="dora-box-title">${tr("uraOpen")}</div>
+          <div class="dora-tiles">${uraTiles}</div>
+        </div>
+      </div>
+    `;
+  }
+  el.roundStatePanel.style.display = "";
+  el.roundStatePanel.innerHTML = `
+    <div class="state-title">${tr("statePanelTitle")}</div>
+    <div class="wall-row">
+      <div class="wall-meta">${tr("wallProgress", { used: prog.used, total: prog.total, remain: prog.remain })}</div>
+      <div class="wall-track"><div class="wall-fill${lowClass}" style="width:${pct.toFixed(1)}%"></div></div>
+      ${extra}
     </div>
   `;
 }

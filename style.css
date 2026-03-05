@@ -280,6 +280,86 @@ body[data-theme="dark"] .advice-title {
   margin-bottom: 10px;
 }
 
+.round-state-panel {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--panel-line);
+  border-radius: 10px;
+  background: var(--panel);
+}
+
+.state-title {
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 8px;
+}
+
+body[data-theme="dark"] .state-title {
+  color: #f2c26a;
+}
+
+.wall-row {
+  margin-bottom: 8px;
+}
+
+.wall-meta {
+  font-size: 13px;
+  color: var(--sub);
+  margin-bottom: 6px;
+}
+
+.wall-track {
+  height: 10px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+body[data-theme="dark"] .wall-track {
+  background: #334155;
+}
+
+.wall-fill {
+  height: 100%;
+  background: #16a34a;
+  width: 0%;
+  transition: width 120ms linear;
+}
+
+.wall-fill.low {
+  background: #eab308;
+}
+
+.dora-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.dora-box {
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+body[data-theme="dark"] .dora-box {
+  background: rgba(30, 41, 59, 0.45);
+}
+
+.dora-box-title {
+  font-size: 13px;
+  color: var(--sub);
+  margin-bottom: 4px;
+}
+
+.dora-tiles {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
 .result-card {
   border: 1px solid var(--panel-line);
   border-radius: 8px;

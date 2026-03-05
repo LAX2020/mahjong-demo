@@ -345,7 +345,8 @@
 
     var fu = calcFuSimple(structure, winType, chiitoi);
     var base = calcBasePoints(han, fu, yakumanTimes);
-    var point = calcPointBreakdown(base, winType, !!input.dealer);
+    var dealerFlag = (typeof input.dealer === "boolean") ? input.dealer : !!state.dealer;
+    var point = calcPointBreakdown(base, winType, !!dealerFlag);
     var limitName = "";
     if (yakumanTimes > 0) limitName = yakumanTimes >= 2 ? "双倍役满" : "役满";
     else if (han >= 13) limitName = "役满";
