@@ -194,7 +194,7 @@ const I18N = {
     autoHu: "自动和牌",
     autoTsumogiri: "自动摸切",
     statePanelTitle: "对局状态",
-    wallProgress: "牌山进度: 已摸{used}/{total}, 剩余{remain}",
+    wallProgress: "牌山进度: 剩余{remain}/{total}, 已摸{used}",
     doraOpen: "宝牌指示",
     uraOpen: "里宝牌指示",
     deadWallInfo: "王牌: 14张（杠补牌剩余{left}）",
@@ -322,7 +322,7 @@ const I18N = {
     autoHu: "Auto Win",
     autoTsumogiri: "Auto Tsumogiri",
     statePanelTitle: "Round State",
-    wallProgress: "Wall progress: used {used}/{total}, remain {remain}",
+    wallProgress: "Wall progress: remain {remain}/{total}, used {used}",
     doraOpen: "Dora Indicators",
     uraOpen: "Ura Indicators",
     deadWallInfo: "Dead wall: 14 tiles (rinshan left {left})",
@@ -450,7 +450,7 @@ const I18N = {
     autoHu: "自動和了",
     autoTsumogiri: "自動ツモ切り",
     statePanelTitle: "局面情報",
-    wallProgress: "山進行: 消費{used}/{total}, 残り{remain}",
+    wallProgress: "山進行: 残り{remain}/{total}, 消費{used}",
     doraOpen: "ドラ表示牌",
     uraOpen: "裏ドラ表示牌",
     deadWallInfo: "王牌: 14枚（嶺上補充残り{left}）",
@@ -2619,8 +2619,8 @@ function renderResultInfo() {
 function renderRoundStatePanel() {
   if (!el.roundStatePanel) return;
   const prog = getWallProgress();
-  const pct = Math.max(0, Math.min(100, prog.total > 0 ? (prog.remain / prog.total) * 100 : 0));
-  const lowClass = pct <= 20 ? " low" : "";
+  const remainPct = Math.max(0, Math.min(100, prog.total > 0 ? (prog.remain / prog.total) * 100 : 0));
+  const lowClass = remainPct <= 20 ? " low" : "";
   let extra = `<div class="wall-meta">${tr("basicWallInfo")}</div>`;
   if (state.ruleSet === "riichi_lite") {
     const backTile = tileHtml(-1, "tiny");
@@ -2657,7 +2657,7 @@ function renderRoundStatePanel() {
     <div class="state-title">${tr("statePanelTitle")}</div>
     <div class="wall-row">
       <div class="wall-meta">${tr("wallProgress", { used: prog.used, total: prog.total, remain: prog.remain })}</div>
-      <div class="wall-track"><div class="wall-fill${lowClass}" style="width:${pct.toFixed(1)}%"></div></div>
+      <div class="wall-track"><div class="wall-fill${lowClass}" style="width:${remainPct.toFixed(1)}%"></div></div>
       ${extra}
     </div>
   `;
