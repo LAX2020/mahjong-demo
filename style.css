@@ -529,6 +529,15 @@ body[data-rule="basic"] #adviceInfo .advice-card {
   max-width: 760px;
 }
 
+body[data-rule="basic"] #adviceInfo .advice-title {
+  font-size: 17px;
+}
+
+body[data-rule="basic"] #adviceInfo .advice-line {
+  font-size: 16px;
+  line-height: 1.45;
+}
+
 @media (max-width: 700px) {
   .table { grid-template-columns: 1fr; }
   .player.human { grid-column: 1; }

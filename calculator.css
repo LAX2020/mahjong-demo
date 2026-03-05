@@ -177,6 +177,11 @@ textarea {
   object-fit: contain;
 }
 
+.tile-haku img {
+  box-shadow: inset 0 0 0 2px #111111;
+  border-radius: 4px;
+}
+
 .hand-zone {
   min-height: 86px;
   border: 1px dashed var(--line);
@@ -213,6 +218,90 @@ textarea {
 .result-title {
   color: var(--text);
   font-weight: 700;
+}
+
+.claim-advice-row {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin: 6px 0;
+}
+
+.claim-advice-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.claim-advice-sub {
+  color: var(--sub);
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.claim-name {
+  color: var(--text);
+}
+
+.claim-level {
+  font-weight: 700;
+}
+
+.tenpai-row {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  margin: 8px 0;
+}
+
+.tenpai-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tenpai-line {
+  margin: 4px 0;
+  color: var(--sub);
+  line-height: 1.45;
+}
+
+.reference-table-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.reference-table-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--panel);
+}
+
+.reference-table-card h3 {
+  margin: 0 0 6px;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.reference-table-card:nth-child(5) {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 980px) {
+  .reference-table-grid {
+    grid-template-columns: 1fr;
+  }
+  .reference-table-card:nth-child(5) {
+    grid-column: auto;
+  }
 }
 
 .dora-line {

@@ -12,7 +12,14 @@ const I18N = {
     notWin: "当前未和牌", waiting: "可和牌张", suggestFast: "最快速度建议", suggestValue: "预期番数最大建议", suggestDiscard: "建议打",
     suggestWaits: "听牌", suggestUkeire: "受入", suggestOneDraw: "一巡内进听受入", winReady: "当前可和", yaku: "役种", hanFu: "番符",
     points: "点数", noYaku: "无有效役（宝牌不能单独和牌）", parseOk: "文本解析成功",
-    dora: "宝牌", ura: "里宝牌", aka: "红宝牌", doraOff: "未立直不计", doraTotal: "宝牌加番合计"
+    dora: "宝牌", ura: "里宝牌", aka: "红宝牌", doraOff: "未立直不计", doraTotal: "宝牌加番合计",
+    specialWin: "和牌事件", chankan: "抢杠", rinshan: "岭上开花", haitei: "海底捞月", houtei: "河底捞鱼",
+    claim13Title: "13张吃碰杠建议", actionChi: "吃", actionPong: "碰", actionKong: "杠", actionRon: "荣和", actionPass: "不吃碰杠",
+    levelRecommend: "推荐", levelNeutral: "中立", levelCaution: "谨慎",
+    tenpaiTitle: "13张听牌点数预览", ronLabel: "荣和", tsumoLabel: "自摸", winRouteOnly: "当前已和牌，显示和牌计算结果。",
+    yakuDetail: "符合条件", none: "无", refTableTitle: "计分规则表", refNonDealer: "闲家点数表（1-4番）", refDealer: "庄家点数表（1-4番）", refLimit: "满贯以上总番数查表", refFu: "符数计算表", refDora: "宝牌规则表",
+    colFu: "符", colHan1: "1番", colHan2: "2番", colHan3: "3番", colHan4: "4番", colRange: "番数区间", colLimit: "限定名", colRon: "荣和", colTsumo: "自摸", colRule: "规则", colDesc: "说明",
+    limitMangan: "满贯", limitHaneman: "跳满", limitBaiman: "倍满", limitSanbaiman: "三倍满", limitYakuman: "役满"
   },
   en: {
     pageTitle: "Han/Fu Calculator", sub: "Input by tile-click or text. Both stay synchronized.",
@@ -24,7 +31,14 @@ const I18N = {
     notWin: "Not winning yet", waiting: "Winning tiles", suggestFast: "Fastest suggestion", suggestValue: "Max expected han", suggestDiscard: "Discard",
     suggestWaits: "Waits", suggestUkeire: "Ukeire", suggestOneDraw: "One-draw tenpai ukeire", winReady: "Winning hand", yaku: "Yaku", hanFu: "Han/Fu",
     points: "Points", noYaku: "No valid yaku (dora alone is not enough)", parseOk: "Text parsed",
-    dora: "Dora", ura: "Ura dora", aka: "Aka dora", doraOff: "Requires riichi", doraTotal: "Dora bonus total"
+    dora: "Dora", ura: "Ura dora", aka: "Aka dora", doraOff: "Requires riichi", doraTotal: "Dora bonus total",
+    specialWin: "Win event", chankan: "Chankan", rinshan: "Rinshan", haitei: "Haitei", houtei: "Houtei",
+    claim13Title: "13-tile call suggestions", actionChi: "Chi", actionPong: "Pong", actionKong: "Kong", actionRon: "Ron", actionPass: "Pass",
+    levelRecommend: "Recommend", levelNeutral: "Neutral", levelCaution: "Caution",
+    tenpaiTitle: "13-tile tenpai value preview", ronLabel: "Ron", tsumoLabel: "Tsumo", winRouteOnly: "Hand is already winning. Showing score calculation.",
+    yakuDetail: "Yaku details", none: "None", refTableTitle: "Scoring Tables", refNonDealer: "Non-dealer table (1-4 han)", refDealer: "Dealer table (1-4 han)", refLimit: "Mangan and above", refFu: "Fu table", refDora: "Dora rules",
+    colFu: "Fu", colHan1: "1 han", colHan2: "2 han", colHan3: "3 han", colHan4: "4 han", colRange: "Han range", colLimit: "Limit", colRon: "Ron", colTsumo: "Tsumo", colRule: "Rule", colDesc: "Description",
+    limitMangan: "Mangan", limitHaneman: "Haneman", limitBaiman: "Baiman", limitSanbaiman: "Sanbaiman", limitYakuman: "Yakuman"
   },
   ja: {
     pageTitle: "翻符計算", sub: "牌クリック入力とテキスト入力を同期します。",
@@ -36,7 +50,14 @@ const I18N = {
     notWin: "未和了", waiting: "和了牌", suggestFast: "最速提案", suggestValue: "最大期待翻数提案", suggestDiscard: "打牌",
     suggestWaits: "待ち", suggestUkeire: "受け入れ", suggestOneDraw: "一巡テンパイ受け入れ", winReady: "和了可能", yaku: "役", hanFu: "翻符",
     points: "点数", noYaku: "有効役なし（ドラのみ不可）", parseOk: "解析成功",
-    dora: "ドラ", ura: "裏ドラ", aka: "赤ドラ", doraOff: "立直時のみ", doraTotal: "ドラ加算合計"
+    dora: "ドラ", ura: "裏ドラ", aka: "赤ドラ", doraOff: "立直時のみ", doraTotal: "ドラ加算合計",
+    specialWin: "和了状況", chankan: "槍槓", rinshan: "嶺上開花", haitei: "海底摸月", houtei: "河底撈魚",
+    claim13Title: "13枚 鳴き提案", actionChi: "チー", actionPong: "ポン", actionKong: "カン", actionRon: "ロン", actionPass: "見送り",
+    levelRecommend: "推奨", levelNeutral: "中立", levelCaution: "慎重",
+    tenpaiTitle: "13枚 聴牌打点プレビュー", ronLabel: "ロン", tsumoLabel: "ツモ", winRouteOnly: "和了形のため、和了計算のみ表示します。",
+    yakuDetail: "役詳細", none: "なし", refTableTitle: "点数計算表", refNonDealer: "子の点数表（1-4翻）", refDealer: "親の点数表（1-4翻）", refLimit: "満貫以上一覧", refFu: "符計算表", refDora: "ドラ規則",
+    colFu: "符", colHan1: "1翻", colHan2: "2翻", colHan3: "3翻", colHan4: "4翻", colRange: "翻数区間", colLimit: "打点名", colRon: "ロン", colTsumo: "ツモ", colRule: "規則", colDesc: "説明",
+    limitMangan: "満貫", limitHaneman: "跳満", limitBaiman: "倍満", limitSanbaiman: "三倍満", limitYakuman: "役満"
   }
 };
 
@@ -44,6 +65,7 @@ const state = {
   lang: "zh", theme: "regular", autoSort: true, target: "hand",
   hand: [], winTile: null, winType: "ron", seatWind: "E", roundWind: "E", dealer: false,
   riichi: false, ippatsu: false, doubleRiichi: false,
+  chankan: false, rinshan: false, haitei: false, houtei: false,
   doraIndicators: [], uraIndicators: [],
   aka5m: false, aka5p: false, aka5s: false,
   suppressText: false, clockEnabled: true,
@@ -57,6 +79,7 @@ const el = {
   result: document.getElementById("result"), advice: document.getElementById("advice"), doraCalc: document.getElementById("doraCalc"), rulesBody: document.getElementById("rulesBody"),
   autoSort: document.getElementById("autoSort"), winType: document.getElementById("winType"), seatWind: document.getElementById("seatWind"), roundWind: document.getElementById("roundWind"),
   dealer: document.getElementById("dealer"), riichi: document.getElementById("riichi"), ippatsu: document.getElementById("ippatsu"), doubleRiichi: document.getElementById("doubleRiichi"),
+  chankan: document.getElementById("chankan"), rinshan: document.getElementById("rinshan"), haitei: document.getElementById("haitei"), houtei: document.getElementById("houtei"),
   aka5m: document.getElementById("aka5m"), aka5p: document.getElementById("aka5p"), aka5s: document.getElementById("aka5s"),
   clearHandBtn: document.getElementById("clearHandBtn"), clearDoraBtn: document.getElementById("clearDoraBtn"), clearUraBtn: document.getElementById("clearUraBtn"),
   copyTextBtn: document.getElementById("copyTextBtn"), applyTextBtn: document.getElementById("applyTextBtn"),
@@ -74,7 +97,16 @@ function tileLabel(id) {
   if (id <= 8) return `${id + 1}m`; if (id <= 17) return `${id - 8}p`; if (id <= 26) return `${id - 17}s`;
   return ["E", "S", "W", "N", "C", "F", "P"][id - 27];
 }
-function tileHtml(id, size = "") { return `<span class="mj-tile ${size}"><img src="assets/tiles-photo/${tileAssetName(id)}" alt="${tileLabel(id)}"></span>`; }
+function tileNameZh(id) {
+  if (id <= 8) return `${id + 1}万`;
+  if (id <= 17) return `${id - 8}筒`;
+  if (id <= 26) return `${id - 17}索`;
+  return ["东", "南", "西", "北", "中", "发", "白"][id - 27];
+}
+function tileHtml(id, size = "") {
+  const special = id === 33 ? " tile-haku" : "";
+  return `<span class="mj-tile ${size}${special}"><img src="assets/tiles-photo/${tileAssetName(id)}" alt="${tileLabel(id)}"></span>`;
+}
 function countTiles(tiles) { const c = new Array(34).fill(0); for (const t of tiles) c[t] += 1; return c; }
 function isTerminalOrHonor(t) { return t >= 27 || t % 9 === 0 || t % 9 === 8; }
 function sortHand() { if (state.autoSort) state.hand.sort((a, b) => a - b); }
@@ -139,6 +171,26 @@ function parseTokenList(str) {
   });
 }
 
+function normalizeWinEventFlags(target) {
+  if (target.winType === "tsumo") {
+    target.chankan = false;
+    target.houtei = false;
+  } else {
+    target.rinshan = false;
+    target.haitei = false;
+  }
+  if (target.haitei) {
+    target.houtei = false;
+    target.rinshan = false;
+  }
+  if (target.houtei) {
+    target.haitei = false;
+    target.chankan = false;
+  }
+  if (target.rinshan) target.haitei = false;
+  if (target.chankan) target.houtei = false;
+}
+
 function stateToText() {
   const aka = [];
   if (state.aka5m) aka.push("5m");
@@ -157,6 +209,10 @@ function stateToText() {
     `riichi: ${state.riichi ? 1 : 0}`,
     `ippatsu: ${state.ippatsu ? 1 : 0}`,
     `double_riichi: ${state.doubleRiichi ? 1 : 0}`,
+    `chankan: ${state.chankan ? 1 : 0}`,
+    `rinshan: ${state.rinshan ? 1 : 0}`,
+    `haitei: ${state.haitei ? 1 : 0}`,
+    `houtei: ${state.houtei ? 1 : 0}`,
   ].join("\n");
 }
 
@@ -181,7 +237,12 @@ function parseTextToState(text) {
     else if (key === "riichi") draft.riichi = val === "1" || val.toLowerCase() === "true";
     else if (key === "ippatsu") draft.ippatsu = val === "1" || val.toLowerCase() === "true";
     else if (key === "double_riichi") draft.doubleRiichi = val === "1" || val.toLowerCase() === "true";
+    else if (key === "chankan") draft.chankan = val === "1" || val.toLowerCase() === "true";
+    else if (key === "rinshan") draft.rinshan = val === "1" || val.toLowerCase() === "true";
+    else if (key === "haitei") draft.haitei = val === "1" || val.toLowerCase() === "true";
+    else if (key === "houtei") draft.houtei = val === "1" || val.toLowerCase() === "true";
   }
+  normalizeWinEventFlags(draft);
   if (draft.hand.length > 14) throw new Error("手牌超过14张");
   if (countTiles(draft.hand).some((x) => x > 4)) throw new Error("同牌超过4张");
   if (draft.doraIndicators.some((x) => x < 0 || x > 33) || draft.uraIndicators.some((x) => x < 0 || x > 33)) throw new Error("宝牌指示牌非法");
@@ -202,9 +263,9 @@ function renderHand() {
 }
 
 function allTilesForCount() {
-  const tiles = state.hand.slice();
-  if (tiles.length === 13 && state.winTile !== null) tiles.push(state.winTile);
-  return tiles;
+  // Always evaluate based on explicit hand tiles only.
+  // `winTile` is only a scoring context hint, not an implicit 14th tile.
+  return state.hand.slice();
 }
 function nextDora(ind) {
   if (ind <= 8) return (ind + 1) % 9;
@@ -329,108 +390,224 @@ function calcPointBreakdown(base, winType, isDealer) {
   return { total, label: `闲家自摸 ${fromDealer}/${fromOthers} (合计${total})` };
 }
 
-function evaluateHandWin(tiles) {
-  const kokushi = canKokushi(tiles), chuuren = canChuuren(tiles), chiitoi = canChiitoitsu(tiles), structure = findWinningStructure(tiles);
-  if (!kokushi.ok && !chuuren.ok && !chiitoi && !structure) return { ok: false, reason: "shape" };
-  const yaku = []; const add = (n, h) => yaku.push({ name: n, han: h });
-  let yakumanTimes = 0; const c = countTiles(tiles);
-
-  if (kokushi.ok) { yakumanTimes = 2; add("国士无双十三面", 26); }
-  if (chuuren.ok) { yakumanTimes = Math.max(yakumanTimes, 2); add("纯正九莲宝灯", 26); }
-
-  if (!yakumanTimes) {
-    if (state.doubleRiichi) add("双立直", 2); else if (state.riichi) add("立直", 1);
-    if (state.riichi && state.ippatsu) add("一发", 1);
-    if (state.winType === "tsumo") add("门前清自摸", 1);
-    if (tiles.every((t) => t <= 26 && !isTerminalOrHonor(t))) add("断幺九", 1);
-    const wm = { E: 27, S: 28, W: 29, N: 30 };
-    if (c[wm[state.seatWind]] >= 3) add("门风刻子", 1);
-    if (c[wm[state.roundWind]] >= 3) add("场风刻子", 1);
-    if (c[31] >= 3) add("三元牌刻子(中)", 1); if (c[32] >= 3) add("三元牌刻子(发)", 1); if (c[33] >= 3) add("三元牌刻子(白)", 1);
-    if (chiitoi) add("七对子", 2);
-
-    if (structure) {
-      const melds = structure.melds, seq = melds.filter((m) => m.type === "sequence"), tri = melds.filter((m) => m.type === "triplet");
-      if (tri.length === 4) add("碰碰和", 2);
-      if (tri.length >= 3) add("三暗刻", 2);
-      const pair = structure.pair;
-      const dragonTrip = [31, 32, 33].filter((t) => c[t] >= 3).length;
-      if (dragonTrip >= 2 && pair >= 31 && pair <= 33) add("小三元", 2);
-      const heads = seq.map((m) => m.tiles[0]);
-      for (let n = 0; n <= 6; n += 1) { if (heads.includes(n) && heads.includes(9 + n) && heads.includes(18 + n)) { add("三色同顺", 2); break; } }
-      for (let s = 0; s < 3; s += 1) { const b = s * 9; if (heads.includes(b) && heads.includes(b + 3) && heads.includes(b + 6)) { add("一气通贯", 2); break; } }
-      const map = new Map(); heads.forEach((h) => map.set(h, (map.get(h) || 0) + 1)); const p = [...map.values()].filter((x) => x >= 2).length;
-      if (p >= 2) add("两杯口", 3); else if (p === 1) add("一杯口", 1);
-      if (melds.every((m) => m.type === "sequence") && pair < 27 && !isTerminalOrHonor(pair)) add("平和", 1);
-      if (isJunchan(structure, tiles)) add("纯全带幺九", 3); else if (isChanta(structure)) add("混全带幺九", 2);
+function evaluateHandWin(tiles, winTileOverride = null, winTypeOverride = null) {
+  const resolvedWinTile = winTileOverride !== null ? winTileOverride : state.winTile;
+  return RiichiEngine.evaluateRules46({
+    tiles,
+    winTile: resolvedWinTile,
+    winType: winTypeOverride || state.winType,
+    dealer: state.dealer,
+    doraIndicators: state.doraIndicators,
+    uraIndicators: state.uraIndicators,
+    state: {
+      riichi: state.riichi,
+      doubleRiichi: state.doubleRiichi,
+      ippatsu: state.ippatsu,
+      chankan: state.chankan,
+      rinshan: state.rinshan,
+      haitei: state.haitei,
+      houtei: state.houtei,
+      seatWind: state.seatWind,
+      roundWind: state.roundWind,
+      aka5m: state.aka5m,
+      aka5p: state.aka5p,
+      aka5s: state.aka5s
     }
-
-    const termHonor = tiles.every((t) => t >= 27 || t % 9 === 0 || t % 9 === 8);
-    if (termHonor) { if (tiles.some((t) => t >= 27)) add("混老头", 2); else { yakumanTimes = Math.max(yakumanTimes, 1); add("清老头", 13); } }
-    if (tiles.every((t) => t >= 27)) { yakumanTimes = Math.max(yakumanTimes, 1); add("字一色", 13); }
-    const green = new Set([19, 20, 21, 23, 25, 32]); if (tiles.every((t) => green.has(t))) { yakumanTimes = Math.max(yakumanTimes, 1); add("绿一色", 13); }
-    const suit = [0, 0, 0]; let honor = 0; tiles.forEach((t) => { if (t <= 8) suit[0] += 1; else if (t <= 17) suit[1] += 1; else if (t <= 26) suit[2] += 1; else honor += 1; });
-    const suitCnt = suit.filter((x) => x > 0).length; if (suitCnt === 1 && honor === 0) add("清一色", 6); else if (suitCnt === 1 && honor > 0) add("混一色", 3);
-    if ([31, 32, 33].filter((t) => c[t] >= 3).length === 3) { yakumanTimes = Math.max(yakumanTimes, 1); add("大三元", 13); }
-    const wTrip = [27, 28, 29, 30].filter((t) => c[t] >= 3).length; const wPair = [27, 28, 29, 30].some((t) => c[t] === 2);
-    if (wTrip === 4) { yakumanTimes = Math.max(yakumanTimes, 2); add("大四喜", 26); } else if (wTrip === 3 && wPair) { yakumanTimes = Math.max(yakumanTimes, 1); add("小四喜", 13); }
-  }
-
-  const dora = calcDoraBonus(tiles);
-  const baseYakuHan = yaku.filter((x) => !x.name.includes("宝牌") && !x.name.includes("ドラ")).reduce((a, b) => a + b.han, 0);
-  if (!yakumanTimes && baseYakuHan <= 0) return { ok: false, reason: "no_yaku", dora };
-
-  let han = yakumanTimes ? yakumanTimes * 13 : yaku.reduce((a, b) => a + b.han, 0);
-  if (!yakumanTimes) {
-    if (dora.doraCount > 0) { yaku.push({ name: `宝牌x${dora.doraCount}`, han: dora.doraCount }); han += dora.doraCount; }
-    if (dora.uraCount > 0) { yaku.push({ name: `里宝牌x${dora.uraCount}`, han: dora.uraCount }); han += dora.uraCount; }
-    if (dora.akaCount > 0) { yaku.push({ name: `红宝牌x${dora.akaCount}`, han: dora.akaCount }); han += dora.akaCount; }
-  }
-  const fu = calcFu(structure, state.winType, chiitoi);
-  const base = calcBasePoints(han, fu, yakumanTimes);
-  const isDealer = state.dealer;
-  const point = calcPointBreakdown(base, state.winType, isDealer);
-  const limitName = getLimitName(han, yakumanTimes, base);
-  return { ok: true, han, fu, yaku, dora, limitName, basePoints: base, point };
+  });
 }
 function canWinTiles(tiles13) {
   if (tiles13.length !== 13) return [];
   const c = countTiles(tiles13); const out = [];
   for (let i = 0; i < 34; i += 1) {
     if (c[i] >= 4) continue;
-    const r = evaluateHandWin(tiles13.concat(i));
-    if (r.ok) out.push(i);
+    const ron = evaluateHandWin(tiles13.concat(i), i, "ron");
+    const tsumo = evaluateHandWin(tiles13.concat(i), i, "tsumo");
+    if (ron.ok || tsumo.ok) out.push(i);
+  }
+  return out;
+}
+function evaluateAnyWinRoute(tiles, winTile) {
+  const preferred = evaluateHandWin(tiles, winTile, state.winType);
+  if (preferred.ok) return { ok: true, result: preferred, usedType: state.winType };
+  const altType = state.winType === "ron" ? "tsumo" : "ron";
+  const alt = evaluateHandWin(tiles, winTile, altType);
+  if (alt.ok) return { ok: true, result: alt, usedType: altType };
+  return { ok: false, result: preferred, usedType: state.winType };
+}
+
+function getWinningTilesByMeldCount(handN, meldCount = 0) {
+  const needMelds = 4 - meldCount;
+  if (needMelds < 0) return [];
+  if (handN.length !== needMelds * 3 + 1) return [];
+  const counts = countTiles(handN);
+  const out = [];
+  for (let i = 0; i < 34; i += 1) {
+    if (counts[i] >= 4) continue;
+    const test = handN.concat(i);
+    if (RiichiEngine.canHuByRule(test, meldCount)) {
+      if (meldCount === 0) {
+        const routed = evaluateAnyWinRoute(test, i);
+        if (routed.ok) out.push(i);
+      } else {
+        out.push(i);
+      }
+    }
   }
   return out;
 }
 
-function getOneDrawTenpaiUkeire(next13) {
-  const c = countTiles(next13); let sum = 0;
-  for (let d = 0; d < 34; d += 1) {
-    const left = 4 - c[d]; if (left <= 0) continue;
-    const h14 = next13.concat(d); let ok = false;
-    for (let i = 0; i < h14.length; i += 1) { const t = h14.slice(); t.splice(i, 1); if (canWinTiles(t).length > 0) { ok = true; break; } }
-    if (ok) sum += left;
-  }
-  return sum;
-}
-
 function getDiscardAdvice(hand14) {
   if (hand14.length !== 14) return null;
-  const c = countTiles(hand14); const seen = new Set(); const cand = [];
-  for (let i = 0; i < hand14.length; i += 1) {
-    const discard = hand14[i]; if (seen.has(discard)) continue; seen.add(discard);
-    const next13 = hand14.slice(); next13.splice(next13.indexOf(discard), 1);
-    const waits = canWinTiles(next13);
-    const ukeire = waits.reduce((a, w) => a + (4 - c[w]), 0);
-    const one = getOneDrawTenpaiUkeire(next13);
-    let bestHan = 0; for (const w of waits) { const r = evaluateHandWin(next13.concat(w)); if (r.ok && r.han > bestHan) bestHan = r.han; }
-    cand.push({ discard, waits, ukeire, oneDrawUkeire: one, bestHan, speedScore: waits.length * 100 + ukeire * 3 + one, valueScore: bestHan * 120 + waits.length * 10 + ukeire });
-  }
-  if (!cand.length) return null;
-  const fast = cand.slice().sort((a, b) => b.speedScore - a.speedScore || b.ukeire - a.ukeire || a.discard - b.discard)[0];
-  const value = cand.slice().sort((a, b) => b.valueScore - a.valueScore || b.bestHan - a.bestHan || a.discard - b.discard)[0];
-  return { fast, value };
+  const doraTiles = state.doraIndicators.map(nextDora);
+  return AdviceEngine.advise14({
+    hand14,
+    meldCount: 0,
+    mode: "rules46",
+    heuristic: { doraTiles, seatWind: state.seatWind, roundWind: state.roundWind },
+    getWinningTiles: getWinningTilesByMeldCount,
+    evaluateWin: (tiles14, winTile) => evaluateAnyWinRoute(tiles14, winTile).result,
+  });
+}
+
+function getThirteenAdvice(hand13) {
+  if (hand13.length !== 13) return null;
+  return AdviceEngine.advise13({
+    hand13,
+    meldCount: 0,
+    mode: "rules46",
+    includeDrawAdvice: false,
+    includeRonOnClaim: false,
+  });
+}
+
+function claimActionLabel(action) {
+  if (action === "chi") return tr("actionChi");
+  if (action === "pong") return tr("actionPong");
+  if (action === "kong") return tr("actionKong");
+  if (action === "ron") return tr("actionRon");
+  return tr("actionPass");
+}
+function claimLevel(delta) {
+  if (delta >= 22) return tr("levelRecommend");
+  if (delta <= 8) return tr("levelCaution");
+  return tr("levelNeutral");
+}
+function claimReason(row) {
+  if (row.best.action === "pass") return "鸣牌提升有限，建议先观察。";
+  if (row.best.action === "chi") return "可加速顺子成型，提升和牌速度。";
+  if (row.best.action === "pong") return "可固定刻子结构，路线更直接。";
+  if (row.best.action === "kong") return "可扩展打点潜力，但注意风险。";
+  if (row.best.action === "ron") return "当前可直接荣和。";
+  return "建议保持当前形。";
+}
+function claimPatternHtml(row) {
+  const pattern = (row.best && row.best.pattern && row.best.pattern.length) ? row.best.pattern : [row.tile];
+  return pattern.map((t) => tileHtml(t, "tiny")).join("");
+}
+function formatResultSummary(r) {
+  if (!r || !r.ok) return "-";
+  const yakuText = r.yaku && r.yaku.length ? r.yaku.map((y) => `${y.name}(${y.han})`).join(", ") : tr("none");
+  const limit = r.limitName ? `, ${r.limitName}` : "";
+  return {
+    scoreLine: `${r.point.total}（${r.han}番${r.fu}符${limit}） ${r.point.label}`,
+    yakuLine: `${tr("yakuDetail")}: ${yakuText}`
+  };
+}
+function buildTenpaiValueRows(hand13, waits) {
+  const out = [];
+  waits.slice().sort((a, b) => a - b).forEach((w) => {
+    try {
+      const hand14 = hand13.concat([w]);
+      const ron = evaluateHandWin(hand14, w, "ron");
+      const tsumo = evaluateHandWin(hand14, w, "tsumo");
+      const ronInfo = formatResultSummary(ron);
+      const tsumoInfo = formatResultSummary(tsumo);
+      out.push(`<div class="tenpai-row">
+        <div class="tenpai-head">${tileHtml(w, "small")} ${tileNameZh(w)}</div>
+        <div class="tenpai-line">${tr("ronLabel")}: ${ronInfo.scoreLine}</div>
+        <div class="tenpai-line">${ronInfo.yakuLine}</div>
+        <div class="tenpai-line">${tr("tsumoLabel")}: ${tsumoInfo.scoreLine}</div>
+        <div class="tenpai-line">${tsumoInfo.yakuLine}</div>
+      </div>`);
+    } catch (_) {
+      out.push(`<div class="tenpai-row">
+        <div class="tenpai-head">${tileHtml(w, "small")} ${tileNameZh(w)}</div>
+        <div class="tenpai-line">${tr("ronLabel")}: -</div>
+        <div class="tenpai-line">${tr("tsumoLabel")}: -</div>
+      </div>`);
+    }
+  });
+  return out;
+}
+
+function renderReferenceTables() {
+  const fuList = [20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110];
+  const ceil100 = (x) => Math.ceil(x / 100) * 100;
+  const cellHtml = (fu, han, dealer) => {
+    if ((fu === 20 && han === 1) || (fu === 25 && han === 1)) return `${tr("ronLabel")} -<br/>${tr("tsumoLabel")} -`;
+    const base = calcBasePoints(han, fu, 0);
+    const ron = fu === 20 ? "-" : String(ceil100(base * (dealer ? 6 : 4)));
+    const tsumo = dealer ? `${ceil100(base * 2)} all` : `${ceil100(base * 2)}/${ceil100(base)}`;
+    return `${tr("ronLabel")} ${ron}<br/>${tr("tsumoLabel")} ${tsumo}`;
+  };
+  const buildTable = (id, headers, rows) => {
+    const elTable = document.getElementById(id);
+    if (!elTable) return;
+    const thead = `<thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead>`;
+    const tbody = `<tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody>`;
+    elTable.innerHTML = thead + tbody;
+  };
+
+  const hanHeaders = [tr("colFu"), tr("colHan1"), tr("colHan2"), tr("colHan3"), tr("colHan4")];
+  const nonDealerRows = fuList.map((fu) => [String(fu), cellHtml(fu, 1, false), cellHtml(fu, 2, false), cellHtml(fu, 3, false), cellHtml(fu, 4, false)]);
+  const dealerRows = fuList.map((fu) => [String(fu), cellHtml(fu, 1, true), cellHtml(fu, 2, true), cellHtml(fu, 3, true), cellHtml(fu, 4, true)]);
+  buildTable("refNonDealerTable", hanHeaders, nonDealerRows);
+  buildTable("refDealerTable", hanHeaders, dealerRows);
+
+  buildTable(
+    "refLimitTable",
+    [tr("colRange"), tr("colLimit"), `闲家${tr("ronLabel")}`, `闲家${tr("tsumoLabel")}(庄/闲)`, `庄家${tr("ronLabel")}`, `庄家${tr("tsumoLabel")}(all)`],
+    [
+      ["5番", tr("limitMangan"), "8000", "4000/2000", "12000", "4000 all"],
+      ["6-7番", tr("limitHaneman"), "12000", "6000/3000", "18000", "6000 all"],
+      ["8-10番", tr("limitBaiman"), "16000", "8000/4000", "24000", "8000 all"],
+      ["11-12番", tr("limitSanbaiman"), "24000", "12000/6000", "36000", "12000 all"],
+      ["13番及以上", tr("limitYakuman"), "32000", "16000/8000", "48000", "16000 all"]
+    ]
+  );
+
+  buildTable(
+    "refFuTable",
+    [tr("colRule"), "符值", tr("colDesc")],
+    [
+      ["底符", "+20", "固定底符"],
+      ["门前荣和", "+10", "门清状态下荣和"],
+      ["自摸", "+2", "自摸和牌"],
+      ["雀头：自风/场风/三元", "+2", "自风牌、场风牌、中发白对子"],
+      ["雀头：连风", "+4", "自风与场风相同"],
+      ["明刻(中张/幺九)", "+2/+4", "2-8数牌 / 1-9与字牌"],
+      ["暗刻(中张/幺九)", "+4/+8", "2-8数牌 / 1-9与字牌"],
+      ["明杠(中张/幺九)", "+8/+16", "2-8数牌 / 1-9与字牌"],
+      ["暗杠(中张/幺九)", "+16/+32", "2-8数牌 / 1-9与字牌"],
+      ["听牌形：单骑/边张/嵌张", "+2", "任一成立则加符"],
+      ["符数进位", "向上取整到10", "例如32符->40符"],
+      ["特例", "固定符", "平和自摸20符；七对子25符；副露不足30符按30符"]
+    ]
+  );
+
+  buildTable(
+    "refDoraTable",
+    [tr("colRule"), tr("colDesc")],
+    [
+      ["宝牌定义", "宝牌指示牌的下一张为宝牌（顺序循环）"],
+      ["数牌循环", "1-9循环（9后回1）"],
+      ["风牌循环", "东→南→西→北→东"],
+      ["三元牌循环", "中→发→白→中"],
+      ["赤宝牌", "赤5万/赤5筒/赤5索，各+1番"],
+      ["里宝牌", "仅立直和牌时计入"],
+      ["宝牌性质", "宝牌只加番，不能单独作为和牌役"]
+    ]
+  );
 }
 
 function renderDoraPanel(tiles) {
@@ -450,29 +627,58 @@ function renderResult() {
   const resultLines = []; const adviceLines = [];
   renderDoraPanel(hand);
   if (hand.length === 14) {
-    const r = evaluateHandWin(hand);
-    if (r.ok) {
+    const routed = evaluateAnyWinRoute(hand, state.winTile);
+    const r = routed.result;
+    if (routed.ok) {
       resultLines.push(`<div class="result-title">${tr("winReady")}</div>`);
       const hanFuText = `${r.han}番 ${r.fu}符${r.limitName ? ` (${r.limitName})` : ""}`;
       resultLines.push(`<div class="result-line">${tr("hanFu")}: ${hanFuText}</div>`);
       resultLines.push(`<div class="result-line">${tr("points")}: ${r.point.total}</div>`);
       resultLines.push(`<div class="result-line">${r.point.label}</div>`);
       resultLines.push(`<div class="result-line">${tr("yaku")}: ${r.yaku.map((y) => `${y.name}(${y.han})`).join(", ") || "-"}</div>`);
+      adviceLines.push(`<div class="result-line">${tr("winRouteOnly")}</div>`);
     } else {
       resultLines.push(`<div class="result-title">${tr("notWin")}</div>`);
       if (r.reason === "no_yaku") resultLines.push(`<div class="result-line">${tr("noYaku")}</div>`);
+      const adv = getDiscardAdvice(hand);
+      if (adv) {
+        const card = (title, x) => `<div class="result-title">${title}</div><div class="result-line">${tr("suggestDiscard")}: ${tileHtml(x.discard, "small")}</div><div class="result-line">${tr("suggestWaits")}: ${x.waits.map((w) => tileHtml(w, "tiny")).join("") || "-"}</div><div class="result-line">${tr("suggestUkeire")}: ${x.ukeire}</div><div class="result-line">${tr("suggestOneDraw")}: ${x.oneDrawUkeire}</div><div class="result-line">best han: ${x.bestHan}</div><div class="result-line">best pts: ${x.bestPoint || 0} / exp pts: ${x.expectedPoint || 0}</div>`;
+        adviceLines.push(card(tr("suggestFast"), adv.fast));
+        adviceLines.push(card(tr("suggestValue"), adv.value));
+      } else adviceLines.push(`<div class="result-line">-</div>`);
     }
-    const adv = getDiscardAdvice(hand);
-    if (adv) {
-      const card = (title, x) => `<div class="result-title">${title}</div><div class="result-line">${tr("suggestDiscard")}: ${tileHtml(x.discard, "small")}</div><div class="result-line">${tr("suggestWaits")}: ${x.waits.map((w) => tileHtml(w, "tiny")).join("") || "-"}</div><div class="result-line">${tr("suggestUkeire")}: ${x.ukeire}</div><div class="result-line">${tr("suggestOneDraw")}: ${x.oneDrawUkeire}</div><div class="result-line">best han: ${x.bestHan}</div>`;
-      adviceLines.push(card(tr("suggestFast"), adv.fast));
-      adviceLines.push(card(tr("suggestValue"), adv.value));
-    } else adviceLines.push(`<div class="result-line">-</div>`);
   } else if (hand.length === 13) {
+    // 13-tile branch has only 2 routes:
+    // 1) has winning waits -> show tenpai value preview
+    // 2) no winning waits -> show call (chi/pong/kong) suggestions
     const waits = canWinTiles(hand);
+    const adv13 = waits.length === 0 ? getThirteenAdvice(hand) : null;
     resultLines.push(`<div class="result-title">${tr("notWin")}</div>`);
     resultLines.push(`<div class="result-line">${tr("waiting")}: ${waits.length ? waits.map((w) => tileHtml(w, "small")).join("") : "-"}</div>`);
-    adviceLines.push(`<div class="result-line">-</div>`);
+    if (waits.length > 0) {
+      const rows = buildTenpaiValueRows(hand, waits);
+      adviceLines.push(`<div class="result-title">${tr("tenpaiTitle")}</div>`);
+      if (rows && rows.length) adviceLines.push(rows.join(""));
+      else {
+        // Never fall back to '-' for waits branch.
+        const compact = waits.map((w) => `<div class="result-line">${tileHtml(w, "small")} ${tileNameZh(w)}</div>`).join("");
+        adviceLines.push(compact);
+      }
+    } else {
+      adviceLines.push(`<div class="result-title">${tr("claim13Title")}</div>`);
+      if (adv13 && adv13.claimTop && adv13.claimTop.length) {
+        const rows = adv13.claimTop.slice(0, 5).map((x) => {
+          const level = claimLevel(x.callDelta || 0);
+          return `<div class="claim-advice-row">
+            <div class="claim-advice-main">${tileHtml(x.tile, "small")} <span class="claim-name">${tileNameZh(x.tile)}</span> | ${claimPatternHtml(x)} | ${claimActionLabel(x.best.action)} | <span class="claim-level">${level}</span></div>
+            <div class="claim-advice-sub">${claimReason(x)}</div>
+          </div>`;
+        }).join("");
+        adviceLines.push(rows);
+      } else {
+        adviceLines.push(`<div class="result-line">当前无可鸣牌建议（13张阶段仅显示吃/碰/杠）。</div>`);
+      }
+    }
   } else {
     resultLines.push(`<div class="result-title">${tr("notWin")}</div><div class="result-line">hand tiles: ${hand.length} (need 13 or 14)</div>`);
     adviceLines.push(`<div class="result-line">-</div>`);
@@ -488,9 +694,12 @@ function applyLanguage() {
   set("autoSortLabel", "autoSort"); set("winTypeLabel", "winType"); set("seatLabel", "seat"); set("roundLabel", "round"); set("dealerLabel", "dealer"); set("riichiLabel", "riichi"); set("ippatsuLabel", "ippatsu"); set("doubleRiichiLabel", "doubleRiichi");
   set("akaLabel", "akaLabel"); set("paletteTitle", "palette"); set("handTitle", "handTitle"); set("clearHandBtn", "clearHand"); set("clearDoraBtn", "clearDora"); set("clearUraBtn", "clearUra");
   set("copyTextBtn", "copyText"); set("applyTextBtn", "applyText"); set("resultHeader", "resultHeader"); set("doraHeader", "doraHeader"); set("rulesTitle", "rulesTitle"); set("langLabel", "lang"); set("themeLabel", "theme"); set("clockLabel", "clock");
+  set("specialWinLabel", "specialWin"); set("chankanLabel", "chankan"); set("rinshanLabel", "rinshan"); set("haiteiLabel", "haitei"); set("houteiLabel", "houtei");
+  set("referenceTableTitle", "refTableTitle"); set("refNonDealerTitle", "refNonDealer"); set("refDealerTitle", "refDealer"); set("refLimitTitle", "refLimit"); set("refFuTitle", "refFu"); set("refDoraTitle", "refDora");
   const th = document.getElementById("textHeader"); if (th) th.textContent = state.lang === "en" ? "Text Input" : state.lang === "ja" ? "テキスト入力" : "文本输入";
   const ah = document.getElementById("adviceHeader"); if (ah) ah.textContent = state.lang === "en" ? "Discard Advice" : state.lang === "ja" ? "打牌提案" : "出牌建议";
   el.backBtn.textContent = tr("back"); el.themeSelect.options[0].text = tr("themeRegular"); el.themeSelect.options[1].text = tr("themeDark");
+  renderReferenceTables();
 }
 
 function updateClock() {
@@ -504,6 +713,11 @@ function syncTextFromState() { if (!state.suppressText) el.textInput.value = sta
 function reflectControls() {
   el.langSelect.value = state.lang; el.themeSelect.value = state.theme; el.autoSort.checked = state.autoSort; el.winType.value = state.winType; el.seatWind.value = state.seatWind; el.roundWind.value = state.roundWind;
   el.dealer.checked = state.dealer; el.riichi.checked = state.riichi; el.ippatsu.checked = state.ippatsu; el.doubleRiichi.checked = state.doubleRiichi;
+  el.chankan.checked = state.chankan; el.rinshan.checked = state.rinshan; el.haitei.checked = state.haitei; el.houtei.checked = state.houtei;
+  el.chankan.disabled = state.winType !== "ron" || state.houtei;
+  el.houtei.disabled = state.winType !== "ron" || state.chankan;
+  el.rinshan.disabled = state.winType !== "tsumo" || state.haitei;
+  el.haitei.disabled = state.winType !== "tsumo" || state.rinshan;
   el.aka5m.checked = state.aka5m; el.aka5p.checked = state.aka5p; el.aka5s.checked = state.aka5s; el.clockToggle.checked = state.clockEnabled;
 }
 function recomputeAndRender() { sortHand(); renderHand(); syncTextFromState(); renderResult(); }
@@ -530,13 +744,17 @@ function bindEvents() {
   el.themeSelect.addEventListener("change", () => { state.theme = el.themeSelect.value; localStorage.setItem("mahjong_calc_theme", state.theme); applyTheme(); });
   el.clockToggle.addEventListener("change", () => { state.clockEnabled = el.clockToggle.checked; localStorage.setItem("mahjong_calc_clock", state.clockEnabled ? "1" : "0"); updateClock(); });
   el.autoSort.addEventListener("change", () => { state.autoSort = el.autoSort.checked; localStorage.setItem("mahjong_calc_auto_sort", state.autoSort ? "1" : "0"); syncFromState(); });
-  el.winType.addEventListener("change", () => { state.winType = el.winType.value; syncFromState(); });
+  el.winType.addEventListener("change", () => { state.winType = el.winType.value; normalizeWinEventFlags(state); syncFromState(); });
   el.seatWind.addEventListener("change", () => { state.seatWind = el.seatWind.value; syncFromState(); });
   el.roundWind.addEventListener("change", () => { state.roundWind = el.roundWind.value; syncFromState(); });
   el.dealer.addEventListener("change", () => { state.dealer = el.dealer.checked; syncFromState(); });
   el.riichi.addEventListener("change", () => { state.riichi = el.riichi.checked; syncFromState(); });
   el.ippatsu.addEventListener("change", () => { state.ippatsu = el.ippatsu.checked; syncFromState(); });
   el.doubleRiichi.addEventListener("change", () => { state.doubleRiichi = el.doubleRiichi.checked; syncFromState(); });
+  el.chankan.addEventListener("change", () => { state.chankan = el.chankan.checked; normalizeWinEventFlags(state); syncFromState(); });
+  el.rinshan.addEventListener("change", () => { state.rinshan = el.rinshan.checked; normalizeWinEventFlags(state); syncFromState(); });
+  el.haitei.addEventListener("change", () => { state.haitei = el.haitei.checked; normalizeWinEventFlags(state); syncFromState(); });
+  el.houtei.addEventListener("change", () => { state.houtei = el.houtei.checked; normalizeWinEventFlags(state); syncFromState(); });
   el.aka5m.addEventListener("change", () => { state.aka5m = el.aka5m.checked; syncFromState(); });
   el.aka5p.addEventListener("change", () => { state.aka5p = el.aka5p.checked; syncFromState(); });
   el.aka5s.addEventListener("change", () => { state.aka5s = el.aka5s.checked; syncFromState(); });
@@ -571,6 +789,7 @@ function init() {
   applyLanguage();
   renderPalette();
   renderRules();
+  renderReferenceTables();
   reflectControls();
   syncFromState();
   bindEvents();

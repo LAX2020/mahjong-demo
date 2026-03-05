@@ -18,6 +18,7 @@ const state = {
   claimFrom: null,
   claimOptions: null,
   humanMustDiscard: false,
+  lastDrawTile: null,
   logEntries: [],
   logCounter: 0,
   currentRoundLogId: null,
@@ -153,6 +154,15 @@ const I18N = {
     adviceReasonFast0: "优先保持高受入, 尽快自摸或荣和。",
     adviceReasonFast1: "更接近听牌, 下巡进入可和状态概率更高。",
     adviceReasonValue: "保留门清与高打点役种潜力, 点数期望更高。",
+    adviceRoutePrefix: "路线",
+    routeRiichi: "立直门清路线",
+    routeTanyao: "断幺九路线",
+    routeYakuhai: "役牌路线",
+    routeHonitsu: "混一色路线",
+    routeGuestWindCut: "先处理客风孤张",
+    routeWindKeep: "保留门风/场风潜力",
+    routeDoubleWindKeep: "保留连风潜力",
+    routeYakuhaiKeep: "保留三元牌潜力",
     actionAdviceRec: "推荐",
     actionAdviceOk: "中立",
     actionAdviceNo: "谨慎",
@@ -262,6 +272,15 @@ const I18N = {
     adviceReasonFast0: "Keeps strong ukeire to win as soon as possible.",
     adviceReasonFast1: "Moves closer to tenpai with better near-term win chances.",
     adviceReasonValue: "Keeps menzen and higher-value yaku potential for better expected points.",
+    adviceRoutePrefix: "Route",
+    routeRiichi: "Menzen riichi route",
+    routeTanyao: "Tanyao route",
+    routeYakuhai: "Yakuhai route",
+    routeHonitsu: "Honitsu route",
+    routeGuestWindCut: "Cut guest wind singleton first",
+    routeWindKeep: "Keep seat/round wind potential",
+    routeDoubleWindKeep: "Keep double-wind potential",
+    routeYakuhaiKeep: "Keep dragon yakuhai potential",
     actionAdviceRec: "Recommended",
     actionAdviceOk: "Neutral",
     actionAdviceNo: "Caution",
@@ -371,6 +390,15 @@ const I18N = {
     adviceReasonFast0: "受け入れを重視して最短和了を狙います。",
     adviceReasonFast1: "聴牌に近づき, 次巡以降の和了率を上げます。",
     adviceReasonValue: "門前維持と高打点役の可能性を残し, 期待打点を重視します。",
+    adviceRoutePrefix: "ルート",
+    routeRiichi: "門前立直ルート",
+    routeTanyao: "断么九ルート",
+    routeYakuhai: "役牌ルート",
+    routeHonitsu: "混一色ルート",
+    routeGuestWindCut: "客風の孤立牌を先切り",
+    routeWindKeep: "自風/場風の可能性を保持",
+    routeDoubleWindKeep: "連風牌の可能性を保持",
+    routeYakuhaiKeep: "三元牌の可能性を保持",
     actionAdviceRec: "推奨",
     actionAdviceOk: "中立",
     actionAdviceNo: "慎重",
@@ -915,7 +943,7 @@ function getTenpaiAfterOneDrawUkeire(hand, meldCount, memoWins) {
   return { drawUkeire, bestWaitsCount: bestWaits.size };
 }
 
-function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoWins, mode = "riichi_lite") {
+function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoWins, mode = "riichi_lite", melds = []) {
   const originCounts = countTiles(hand14);
   const idx = hand14.indexOf(discard);
   const next13 = hand14.slice();
@@ -962,6 +990,30 @@ function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoW
     profile.isolated * 8.5;
 
   const discardRoleCost = getDiscardRoleCost(originCounts, discard);
+  let bestPoint = 0;
+  let expectedPoint = 0;
+  if (mode === "riichi_lite" && waits.length > 0) {
+    const nextCounts = countTiles(next13);
+    let weighted = 0;
+    let weight = 0;
+    for (const w of waits) {
+      const avail = Math.max(0, 4 - nextCounts[w]);
+      if (avail <= 0) continue;
+      const r = RiichiEngine.evaluateRiichiLite({
+        tiles: [...next13, w],
+        winType: "ron",
+        winTile: w,
+        melds,
+        riichi: !!state.players?.[0]?.riichi,
+        doraIndicators: state.doraIndicator === null ? [] : [state.doraIndicator]
+      });
+      if (!r.ok) continue;
+      if (r.points > bestPoint) bestPoint = r.points;
+      weighted += r.points * avail;
+      weight += avail;
+    }
+    if (weight > 0) expectedPoint = weighted / weight;
+  }
 
   const speedScore =
     (dist === 0 ? 260 : dist === 1 ? 145 : 35) +
@@ -979,6 +1031,8 @@ function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoW
     pairPotential * 5 +
     flushPotential * 80 +
     doraCount * 22 +
+    bestPoint / 38 +
+    expectedPoint / 55 +
     structureScore * 0.55 +
     (dist === 0 ? 35 : dist === 1 ? 12 : 0) +
     ukeire * 1.4 -
@@ -1005,6 +1059,8 @@ function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoW
     structureScore,
     flushPotential,
     doraCount,
+    bestPoint,
+    expectedPoint,
     speedScore: finalSpeedScore,
     valueScore: finalValueScore,
   };
@@ -1012,22 +1068,44 @@ function evaluateDiscardCandidate(hand14, discard, meldCount, hasOpenMeld, memoW
 
 function getDiscardAdvice(hand, melds, mode = "riichi_lite", restrictDiscards = null) {
   const meldCount = melds.length;
-  const hasOpenMeld = melds.some((m) => m.type === "chi" || m.type === "pong" || m.type === "kong_open");
-  const restrict = restrictDiscards ? new Set(restrictDiscards) : null;
-  const seen = new Set();
-  const candidates = [];
-  const memoWins = new Map();
-  for (const d of hand) {
-    if (seen.has(d)) continue;
-    seen.add(d);
-    if (restrict && !restrict.has(d)) continue;
-    candidates.push(evaluateDiscardCandidate(hand, d, meldCount, hasOpenMeld, memoWins, mode));
-  }
-  if (candidates.length === 0) return null;
+  const human = state.players[0] || { riichi: false, melds: [] };
+  const doraTiles = state.doraIndicator === null ? [] : [nextDoraFromIndicator(state.doraIndicator)];
 
-  const fast = candidates.slice().sort((a, b) => b.speedScore - a.speedScore || b.ukeire - a.ukeire || a.discard - b.discard)[0];
-  const value = candidates.slice().sort((a, b) => b.valueScore - a.valueScore || b.speedScore - a.speedScore || a.discard - b.discard)[0];
-  return { fast, value };
+  const getWins = (handN, mc) => {
+    const needMelds = 4 - mc;
+    if (needMelds < 0) return [];
+    if (handN.length !== needMelds * 3 + 1) return [];
+    const counts = countTiles(handN);
+    const wins = [];
+    for (let id = 0; id < 34; id += 1) {
+      if (counts[id] >= 4) continue;
+      const test = handN.concat(id);
+      const shapeOk = mode === "riichi_lite" ? RiichiEngine.canHuByRule(test, mc) : canHu(test, mc);
+      if (!shapeOk) continue;
+      if (mode !== "riichi_lite") {
+        wins.push(id);
+        continue;
+      }
+      const r = evaluateRiichiLiteWin({ ...human, melds: melds.slice() }, test, "ron", id);
+      if (r.ok) wins.push(id);
+    }
+    return wins;
+  };
+
+  const evaluateWin = (tiles14, winTile) => {
+    if (mode === "riichi_lite") return evaluateRiichiLiteWin({ ...human, melds: melds.slice() }, tiles14, "ron", winTile);
+    return { ok: canHu(tiles14, meldCount), han: 0, fu: 0, points: 0 };
+  };
+
+  return DecisionEngine.evaluateDiscardAdvice({
+    hand,
+    meldCount,
+    mode,
+    restrictDiscards,
+    heuristic: { doraTiles, seatWind: "E", roundWind: "E" },
+    getWinningTiles: getWins,
+    evaluateWin,
+  });
 }
 
 function evaluatePassAction(hand, melds, mode = "riichi_lite") {
@@ -1048,85 +1126,212 @@ function evaluatePassAction(hand, melds, mode = "riichi_lite") {
   return { speed, value, reason: passReason };
 }
 
+function evaluateTenpaiValueAfterCall(hand10, melds, mode = "riichi_lite") {
+  const waits = getWinningTiles(hand10, melds.length);
+  const ukeire = calcUkeireForWaits(hand10, waits);
+  if (mode === "basic") {
+    return {
+      waits,
+      waitsViable: waits,
+      ukeire,
+      bestPoint: 0,
+      expectedPoint: 0,
+      hasYakuWin: waits.length > 0,
+    };
+  }
+
+  const fakePlayer = { ...state.players[0], melds: melds.slice(), riichi: false };
+  const waitsViable = [];
+  let bestPoint = 0;
+  let weighted = 0;
+  let weight = 0;
+  const counts = countTiles(hand10);
+  for (const w of waits) {
+    const r = evaluateRiichiLiteWin(fakePlayer, hand10.concat([w]), "ron", w);
+    if (!r.ok) continue;
+    waitsViable.push(w);
+    const pts = r.points || 0;
+    if (pts > bestPoint) bestPoint = pts;
+    const avail = Math.max(0, 4 - counts[w]);
+    if (avail > 0) {
+      weighted += pts * avail;
+      weight += avail;
+    }
+  }
+  return {
+    waits,
+    waitsViable,
+    ukeire,
+    bestPoint,
+    expectedPoint: weight > 0 ? weighted / weight : 0,
+    hasYakuWin: waitsViable.length > 0,
+  };
+}
+
+function evaluateCallAfterMeldConcealed(handAfterCall, nextMelds, mode) {
+  if (handAfterCall.length !== 11) return { valid: false };
+  const uniq = [...new Set(handAfterCall)];
+  let best = null;
+  const memoWins = new Map();
+  for (const d of uniq) {
+    const next10 = handAfterCall.slice();
+    const i = next10.indexOf(d);
+    if (i < 0) continue;
+    next10.splice(i, 1);
+
+    const tenpai = evaluateTenpaiValueAfterCall(next10, nextMelds, mode);
+    const one = getTenpaiAfterOneDrawUkeire(next10, nextMelds.length, memoWins);
+    const dist = tenpai.waits.length > 0 ? 0 : one.drawUkeire > 0 ? 1 : 2;
+    const tenpaiUkeire = mode === "riichi_lite" ? calcUkeireForWaits(next10, tenpai.waitsViable) : tenpai.ukeire;
+
+    let speed =
+      (dist === 0 ? 270 : dist === 1 ? 138 : 52) +
+      tenpaiUkeire * 6 +
+      one.drawUkeire * 2.1 +
+      (dist === 0 ? 18 : 0);
+    let value;
+    if (mode === "basic") {
+      value = speed * 0.88 + tenpaiUkeire * 0.6;
+    } else {
+      value =
+        speed * 0.35 +
+        tenpai.bestPoint / 40 +
+        tenpai.expectedPoint / 55 +
+        tenpai.waitsViable.length * 9;
+      if (tenpai.waits.length > 0 && !tenpai.hasYakuWin) {
+        // Open hand tenpai but no yaku-win route: major risk in riichi-like play.
+        speed -= 44;
+        value -= 78;
+      }
+    }
+
+    const cand = {
+      discard: d,
+      dist,
+      tenpaiUkeire,
+      waits: tenpai.waits,
+      waitsViable: tenpai.waitsViable,
+      speed,
+      value,
+      bestPoint: tenpai.bestPoint,
+      expectedPoint: tenpai.expectedPoint,
+      hasYakuWin: tenpai.hasYakuWin,
+    };
+    const score = mode === "basic" ? cand.speed * 0.84 + cand.value * 0.16 : cand.speed * 0.58 + cand.value * 0.42;
+    cand.score = score;
+    if (!best || cand.score > best.score) best = cand;
+  }
+  if (!best) return { valid: false };
+  return { valid: true, ...best };
+}
+
 function evaluateCallAction(type, baseHand, melds, claimTile, pattern = null, mode = "riichi_lite") {
-  const hand = baseHand.slice();
-  const removeList = [];
-  if (type === "pong") removeList.push(claimTile, claimTile);
-  if (type === "kong") removeList.push(claimTile, claimTile, claimTile);
-  if (type === "chi" && pattern) {
-    const need = pattern.filter((id) => id !== claimTile).slice(0, 2);
-    removeList.push(...need);
-  }
+  const basePass = evaluatePassAction(baseHand, melds, mode);
+  const tx = DecisionEngine.transitionByCall({
+    type,
+    baseHand,
+    melds,
+    claimTile,
+    pattern
+  });
+  if (!tx) return { valid: false, speed: -999, value: -999, reason: tr("actionReasonCallValue") };
+  const hand = tx.handAfterCall;
+  const nextMelds = tx.nextMelds;
 
-  for (const t of removeList) {
-    const i = hand.indexOf(t);
-    if (i < 0) return { speed: -999, value: -999, reason: tr("actionReasonCallValue") };
-    hand.splice(i, 1);
-  }
+  let speed = 0;
+  let value = 0;
+  let reason = tr("actionReasonCallFast");
+  if (type === "chi" || type === "pong") {
+    const r = evaluateCallAfterMeldConcealed(hand, nextMelds, mode);
+    if (!r.valid) return { valid: false, speed: -999, value: -999, reason: tr("actionReasonCallValue") };
+    speed = r.speed;
+    value = r.value;
 
-  let nextMeldType = "chi";
-  if (type === "pong") nextMeldType = "pong";
-  if (type === "kong") nextMeldType = "kong_open";
-  const nextMelds = [...melds, { type: nextMeldType, tiles: [] }];
+    if (type === "chi" && pattern) {
+      const beforeCounts = countTiles(baseHand);
+      const hasOwnClaimTile = beforeCounts[claimTile] > 0;
+      const hasFullSeqBefore = pattern.every((t) => beforeCounts[t] > 0);
+      const weakSpeedGain = speed <= basePass.speed + (mode === "basic" ? 14 : 18);
+      // Redundant chi: already had the same 3-tile block and call doesn't bring clear speed gain.
+      if (hasOwnClaimTile && hasFullSeqBefore && weakSpeedGain) {
+        speed -= mode === "basic" ? 42 : 36;
+        value -= mode === "basic" ? 30 : 58;
+      }
+      // Generic anti-overcall guard for chi when speed gain is marginal.
+      if (weakSpeedGain) {
+        speed -= mode === "basic" ? 16 : 12;
+        value -= mode === "basic" ? 10 : 20;
+      }
+    }
 
-  let speed = -999;
-  let value = -999;
-  if (type === "kong") {
+    if (mode === "basic") {
+      // Basic mode is pure speed-oriented. Give explicit bonus for immediate meld completion.
+      speed += type === "pong" ? 28 : 18;
+      if (r.dist === 0) speed += 22;
+      value = speed;
+    }
+    if (r.dist === 0 && (mode === "basic" || r.hasYakuWin)) reason = tr("actionReasonCallFast");
+    else reason = tr("actionReasonCallValue");
+  } else if (type === "kong") {
+    // Open kong adds a replacement draw, then discard.
+    if (hand.length !== 10) return { valid: false, speed: -999, value: -999, reason: tr("actionReasonCallValue") };
     const counts = countTiles(hand);
     let weightedSpeed = 0;
     let weightedValue = 0;
     let totalW = 0;
-    for (let d = 0; d < 34; d += 1) {
-      const avail = Math.max(0, 4 - counts[d]);
-      if (avail === 0) continue;
-      const handAfterDraw = hand.slice();
-      handAfterDraw.push(d);
-      const adv = getDiscardAdvice(handAfterDraw, nextMelds, mode);
-      if (!adv) continue;
-      weightedSpeed += adv.fast.speedScore * avail;
-      weightedValue += adv.value.valueScore * avail;
+    for (let draw = 0; draw < 34; draw += 1) {
+      const avail = Math.max(0, 4 - counts[draw]);
+      if (avail <= 0) continue;
+      const hand11 = hand.slice();
+      hand11.push(draw);
+      const r = evaluateCallAfterMeldConcealed(hand11, nextMelds, mode);
+      if (!r.valid) continue;
+      weightedSpeed += r.speed * avail;
+      weightedValue += r.value * avail;
       totalW += avail;
     }
-    if (totalW > 0) {
-      speed = weightedSpeed / totalW;
-      value = weightedValue / totalW - 12;
-    }
-  } else {
-    const adv = getDiscardAdvice(hand, nextMelds, mode);
-    if (adv) {
-      speed = adv.fast.speedScore;
-      value = adv.value.valueScore - 10;
-    }
+    if (totalW <= 0) return { valid: false, speed: -999, value: -999, reason: tr("actionReasonCallValue") };
+    speed = weightedSpeed / totalW;
+    value = weightedValue / totalW - 10;
+    if (mode === "basic") value = speed;
+    reason = speed >= value ? tr("actionReasonCallFast") : tr("actionReasonCallValue");
   }
-  const reason = speed > value ? tr("actionReasonCallFast") : tr("actionReasonCallValue");
-  return { speed, value, reason };
+
+  if (!Number.isFinite(speed) || !Number.isFinite(value) || speed < 0 || value < 0) {
+    return { valid: false, speed: -999, value: -999, reason: tr("actionReasonCallValue") };
+  }
+
+  // Final conservative gate: if calling is not faster than pass in basic mode, demote it.
+  if (mode === "basic" && speed <= basePass.speed + 2) {
+    speed -= 18;
+    value = speed;
+    reason = tr("actionReasonPassBasic");
+  }
+  return { valid: true, speed, value, reason };
 }
 
 function buildClaimActionHints(options, claimTile, mode = "riichi_lite") {
   const human = state.players[0];
   const evalu = [];
-  const basePass = evaluatePassAction(human.hand, human.melds, mode);
-  evalu.push({ key: "pass", speed: basePass.speed, value: basePass.value, reason: basePass.reason });
-
-  if (options.pong) {
-    const e = evaluateCallAction("pong", human.hand, human.melds, claimTile, null, mode);
-    evalu.push({ key: "pong", speed: e.speed, value: e.value, reason: e.reason });
-  }
-  if (options.kong) {
-    const e = evaluateCallAction("kong", human.hand, human.melds, claimTile, null, mode);
-    evalu.push({ key: "kong", speed: e.speed, value: e.value, reason: e.reason });
-  }
-  if (options.chi?.length) {
-    options.chi.forEach((p, idx) => {
-      const e = evaluateCallAction("chi", human.hand, human.melds, claimTile, p, mode);
-      evalu.push({ key: `chi_${idx}`, speed: e.speed, value: e.value, reason: e.reason });
-    });
-  }
-  if (options.hu) {
-    evalu.push({ key: "hu", speed: 9999, value: 9999, reason: tr("actionReasonHu") });
+  const actions = DecisionEngine.generateClaimActions(options, claimTile);
+  for (const a of actions) {
+    if (a.type === "pass") {
+      const p = evaluatePassAction(human.hand, human.melds, mode);
+      evalu.push({ key: a.key, speed: p.speed, value: p.value, reason: p.reason });
+      continue;
+    }
+    if (a.type === "hu") {
+      evalu.push({ key: a.key, speed: 300, value: 300, reason: tr("actionReasonHu"), isHu: true });
+      continue;
+    }
+    const e = evaluateCallAction(a.type, human.hand, human.melds, claimTile, a.pattern || null, mode);
+    evalu.push({ key: a.key, speed: e.valid === false ? 1 : e.speed, value: e.valid === false ? 1 : e.value, reason: e.reason });
   }
 
-  const withCombined = evalu.map((x) => ({ ...x, combined: x.speed * 0.58 + x.value * 0.42 }));
+  const withCombined = evalu.map((x) => ({
+    ...x,
+    combined: mode === "basic" ? x.speed : x.speed * 0.58 + x.value * 0.42
+  }));
   const best = withCombined.reduce((a, b) => (a.combined >= b.combined ? a : b), withCombined[0]);
 
   const out = {};
@@ -1135,7 +1340,11 @@ function buildClaimActionHints(options, claimTile, mode = "riichi_lite") {
     if (x.key === "hu") label = tr("actionAdviceRec");
     else if (x.combined >= best.combined - 6) label = tr("actionAdviceRec");
     else if (x.combined <= best.combined - 22) label = tr("actionAdviceNo");
-    out[x.key] = `${tr("actionAdviceFmt", { label, speed: Math.round(x.speed), value: Math.round(x.value) })} · ${x.reason}`;
+    if (x.isHu) {
+      out[x.key] = `${label} · ${x.reason}`;
+    } else {
+      out[x.key] = `${tr("actionAdviceFmt", { label, speed: Math.round(x.speed), value: Math.round(x.value) })} · ${x.reason}`;
+    }
   });
   return out;
 }
@@ -1144,6 +1353,18 @@ function distLabel(dist) {
   if (dist === 0) return tr("adviceDist0");
   if (dist === 1) return tr("adviceDist1");
   return tr("adviceDist2");
+}
+
+function routeLabel(routeTag) {
+  if (routeTag === "riichi") return tr("routeRiichi");
+  if (routeTag === "tanyao") return tr("routeTanyao");
+  if (routeTag === "yakuhai") return tr("routeYakuhai");
+  if (routeTag === "honitsu") return tr("routeHonitsu");
+  if (routeTag === "guest_wind_cut") return tr("routeGuestWindCut");
+  if (routeTag === "wind_keep") return tr("routeWindKeep");
+  if (routeTag === "double_wind_keep") return tr("routeDoubleWindKeep");
+  if (routeTag === "yakuhai_keep") return tr("routeYakuhaiKeep");
+  return "";
 }
 
 function countTiles(hand) {
@@ -1169,6 +1390,7 @@ function initGame() {
   state.claimFrom = null;
   state.claimOptions = null;
   state.humanMustDiscard = false;
+  state.lastDrawTile = null;
   state.pendingRiichi = false;
   state.riichiDiscardCandidates = [];
   state.lastResult = null;
@@ -1343,12 +1565,8 @@ function canKokushi(hand, meldCount) {
 }
 
 function canHuByRule(hand, meldCount) {
-  if (canHu(hand, meldCount)) return true;
-  if (state.ruleSet === "riichi_lite") {
-    if (canChiitoitsu(hand, meldCount)) return true;
-    if (canKokushi(hand, meldCount)) return true;
-  }
-  return false;
+  if (state.ruleSet === "riichi_lite") return RiichiEngine.canHuByRule(hand, meldCount);
+  return canHu(hand, meldCount);
 }
 
 function nextDoraFromIndicator(ind) {
@@ -1441,145 +1659,14 @@ function getAllTilesForScore(player, handWithWin) {
 }
 
 function evaluateRiichiLiteWin(player, handWithWin, winType, winTile) {
-  const hasOpen = player.melds.some((m) => m.type === "chi" || m.type === "pong" || m.type === "kong_open");
-  const isChiitoi = canChiitoitsu(handWithWin, player.melds.length);
-  const isKokushi = canKokushi(handWithWin, player.melds.length);
-  const isRegular = canHu(handWithWin, player.melds.length);
-  if (!isRegular && !isChiitoi && !isKokushi) return { ok: false };
-
-  if (isKokushi) {
-    const yaku = ["Kokushi Musou"];
-    if (player.riichi) yaku.push("Riichi");
-    return { ok: true, han: 13, fu: 0, points: winType === "tsumo" ? 16000 : 32000, yaku, winType, winTile };
-  }
-
-  const structure = isRegular ? findWinningStructure(handWithWin, player.melds.length) : null;
-  if (!structure && !isChiitoi) return { ok: false };
-
-  let han = 0;
-  let fu = isChiitoi ? 25 : 20;
-  const yaku = [];
-  let baseYakuHan = 0;
-  const addYaku = (name, h) => {
-    han += h;
-    baseYakuHan += h;
-    yaku.push(name);
-  };
-
-  if (player.riichi) {
-    addYaku("Riichi", 1);
-  }
-  if (!hasOpen && winType === "tsumo") {
-    addYaku("Menzen Tsumo", 1);
-  }
-
-  const allTiles = getAllTilesForScore(player, handWithWin);
-  const allNoTH = allTiles.every((t) => t < 27 && !isTerminalOrHonor(t));
-  if (allNoTH) {
-    addYaku("Tanyao", 1);
-  }
-
-  const counts = countTiles(allTiles);
-  if (counts[31] >= 3) addYaku("Yakuhai Chun", 1);
-  if (counts[32] >= 3) addYaku("Yakuhai Hatsu", 1);
-  if (counts[33] >= 3) addYaku("Yakuhai Haku", 1);
-
-  if (isChiitoi) {
-    addYaku("Chiitoitsu", 2);
-  } else {
-    const closedMelds = structure.melds;
-    const allMelds = [...closedMelds, ...player.melds.map((m) => ({ type: m.type === "chi" ? "sequence" : "triplet", tiles: m.tiles }))];
-    const onlySeq = allMelds.every((m) => m.type === "sequence");
-    const pairTile = structure.pair;
-    const pairValue = pairTile >= 31 && pairTile <= 33;
-    if (!hasOpen && onlySeq && !pairValue && !isTerminalOrHonor(pairTile)) addYaku("Pinfu", 1);
-
-    if (allMelds.every((m) => m.type === "triplet")) addYaku("Toitoi", 2);
-    if (closedMelds.filter((m) => m.type === "triplet").length >= 3) addYaku("Sanankou", 2);
-
-    const dragonTriplets = [31, 32, 33].filter((d) => counts[d] >= 3).length;
-    if (dragonTriplets >= 2 && pairTile >= 31 && pairTile <= 33) addYaku("Shousangen", 2);
-
-    const seqKeys = allMelds
-      .filter((m) => m.type === "sequence")
-      .map((m) => m.tiles[0]);
-    // Sanshoku doujun
-    for (let n = 0; n <= 6; n += 1) {
-      if (seqKeys.includes(n) && seqKeys.includes(9 + n) && seqKeys.includes(18 + n)) {
-        addYaku("Sanshoku Doujun", hasOpen ? 1 : 2);
-        break;
-      }
-    }
-    // Ittsuu
-    for (let s = 0; s < 3; s += 1) {
-      const b = s * 9;
-      if (seqKeys.includes(b) && seqKeys.includes(b + 3) && seqKeys.includes(b + 6)) {
-        addYaku("Ittsuu", hasOpen ? 1 : 2);
-        break;
-      }
-    }
-    // Iipeikou / Ryanpeikou
-    if (!hasOpen) {
-      const map = new Map();
-      closedMelds
-        .filter((m) => m.type === "sequence")
-        .forEach((m) => map.set(m.tiles[0], (map.get(m.tiles[0]) || 0) + 1));
-      const pairSeq = [...map.values()].filter((v) => v >= 2).length;
-      if (pairSeq >= 2) addYaku("Ryanpeikou", 3);
-      else if (pairSeq === 1) addYaku("Iipeikou", 1);
-    }
-  }
-
-  // Honitsu / Chinitsu
-  const suitHas = [0, 0, 0];
-  let honorHas = 0;
-  allTiles.forEach((t) => {
-    if (t <= 8) suitHas[0] += 1;
-    else if (t <= 17) suitHas[1] += 1;
-    else if (t <= 26) suitHas[2] += 1;
-    else honorHas += 1;
+  return RiichiEngine.evaluateRiichiLite({
+    tiles: handWithWin,
+    winType,
+    winTile: winTile === null ? handWithWin[handWithWin.length - 1] : winTile,
+    melds: player.melds,
+    riichi: !!player.riichi,
+    doraIndicators: state.doraIndicator === null ? [] : [state.doraIndicator]
   });
-  const suitsUsed = suitHas.filter((x) => x > 0).length;
-  if (suitsUsed === 1 && honorHas === 0) addYaku("Chinitsu", hasOpen ? 5 : 6);
-  else if (suitsUsed === 1 && honorHas > 0) addYaku("Honitsu", hasOpen ? 2 : 3);
-
-  if (baseYakuHan <= 0) return { ok: false, reason: "no_yaku" };
-
-  if (!isChiitoi) {
-    const closedMelds = structure.melds;
-    const allMelds = [...closedMelds, ...player.melds.map((m) => ({ type: m.type === "chi" ? "sequence" : "triplet", tiles: m.tiles }))];
-    const pairTile = structure.pair;
-    const pairValue = pairTile >= 31 && pairTile <= 33;
-    if (!hasOpen && winType === "ron") fu += 10;
-    if (pairValue) fu += 2;
-    allMelds.forEach((m) => {
-      if (m.type !== "triplet") return;
-      const t = m.tiles[0];
-      const terminal = isTerminalOrHonor(t);
-      fu += terminal ? 8 : 4;
-    });
-    fu = Math.ceil(fu / 10) * 10;
-  }
-
-  let dora = 0;
-  if (state.doraIndicator !== null) {
-    const doraTile = nextDoraFromIndicator(state.doraIndicator);
-    dora = allTiles.filter((t) => t === doraTile).length;
-  }
-  if (dora > 0) {
-    han += dora;
-    yaku.push(`Dora x${dora}`);
-  }
-
-  let basePoints = fu * Math.pow(2, han + 2);
-  // Basic riichi limits.
-  if (han >= 13) basePoints = 8000;
-  else if (han >= 11) basePoints = 6000;
-  else if (han >= 8) basePoints = 4000;
-  else if (han >= 6) basePoints = 3000;
-  else if (han >= 5 || basePoints >= 2000) basePoints = 2000;
-  const points = winType === "tsumo" ? Math.ceil((basePoints * 2) / 100) * 100 : Math.ceil((basePoints * 4) / 100) * 100;
-  return { ok: true, han, fu, points, yaku, winType, winTile };
 }
 
 function estimateMaxHanPotential(player) {
@@ -1611,8 +1698,7 @@ function estimateMaxHanPotential(player) {
 
 function canPlayerWinNow(player, winType, winTile = null, handOverride = null) {
   const hand = handOverride || player.hand;
-  if (!canHu(hand, player.melds.length)) return false;
-  if (state.ruleSet !== "riichi_lite") return true;
+  if (state.ruleSet !== "riichi_lite") return canHu(hand, player.melds.length);
   const r = evaluateRiichiLiteWin(player, hand, winType, winTile);
   return !!r.ok;
 }
@@ -1736,7 +1822,7 @@ function refreshHumanActions() {
   if (state.gameOver) return;
 
   const human = state.players[0];
-  if (state.currentPlayer === 0 && canPlayerWinNow(human, "tsumo")) {
+  if (state.currentPlayer === 0 && canPlayerWinNow(human, "tsumo", state.lastDrawTile)) {
     el.actionBar.appendChild(actionItem(actionButton(tr("selfDraw"), [], () => finalizeHumanTsumo())));
   }
 
@@ -1847,6 +1933,7 @@ function humanDiscard(index) {
   } else {
     logAction(0, "discardTo", [tile], "", true);
   }
+  state.lastDrawTile = null;
 
   processDiscard(0, tile);
 }
@@ -1877,6 +1964,7 @@ function startTurn(playerIdx, needDraw) {
   if (playerIdx !== 0) {
     state.pendingRiichi = false;
     state.riichiDiscardCandidates = [];
+    state.lastDrawTile = null;
   }
 
   if (state.wall.length === 0) {
@@ -1885,8 +1973,14 @@ function startTurn(playerIdx, needDraw) {
   }
 
   if (playerIdx === 0) {
+    state.lastDrawTile = null;
     if (needDraw) {
       const tile = drawTile();
+      if (tile === null) {
+        endGameI18n("logWallEmpty");
+        return;
+      }
+      state.lastDrawTile = tile;
       state.players[0].hand.push(tile);
       sortHand(state.players[0].hand);
     }
@@ -1897,17 +1991,26 @@ function startTurn(playerIdx, needDraw) {
     // Riichi locked state: auto tsumogiri unless tsumo is available.
     const human = state.players[0];
     if (state.ruleSet === "riichi_lite" && human.riichi && !state.pendingRiichi) {
-      if (canPlayerWinNow(human, "tsumo")) {
+      if (canPlayerWinNow(human, "tsumo", state.lastDrawTile)) {
         finalizeHumanTsumo();
         return;
       }
-      const lastTile = human.hand[human.hand.length - 1];
-      if (lastTile !== undefined) {
-        human.hand.pop();
-        human.discards.push(lastTile);
-        logAction(0, "discardTo", [lastTile], "riichi", true);
+      const tsumogiriTile = state.lastDrawTile;
+      if (tsumogiriTile !== null && tsumogiriTile !== undefined) {
+        if (!removeOne(human.hand, tsumogiriTile)) {
+          const fallback = human.hand.pop();
+          if (fallback === undefined) return;
+          human.discards.push(fallback);
+          logAction(0, "discardTo", [fallback], "riichi", true);
+          state.humanMustDiscard = false;
+          processDiscard(0, fallback);
+          return;
+        }
+        human.discards.push(tsumogiriTile);
+        logAction(0, "discardTo", [tsumogiriTile], "riichi", true);
         state.humanMustDiscard = false;
-        processDiscard(0, lastTile);
+        state.lastDrawTile = null;
+        processDiscard(0, tsumogiriTile);
         return;
       }
     }
@@ -1925,6 +2028,7 @@ function runBotTurn(idx, needDraw) {
 
   setTimeout(() => {
     const bot = state.players[idx];
+    let drawTileForTurn = null;
 
     if (needDraw) {
       const tile = drawTile();
@@ -1932,11 +2036,12 @@ function runBotTurn(idx, needDraw) {
         endGameI18n("logWallEmpty");
         return;
       }
+      drawTileForTurn = tile;
       bot.hand.push(tile);
       sortHand(bot.hand);
     }
 
-    if (canPlayerWinNow(bot, "tsumo")) {
+    if (canPlayerWinNow(bot, "tsumo", drawTileForTurn)) {
       endGameI18n("logBotWin", { nameId: idx });
       return;
     }
@@ -1982,7 +2087,7 @@ function claimHu() {
 function finalizeHumanTsumo() {
   const human = state.players[0];
   if (state.ruleSet === "riichi_lite") {
-    const r = evaluateRiichiLiteWin(human, human.hand.slice(), "tsumo");
+    const r = evaluateRiichiLiteWin(human, human.hand.slice(), "tsumo", state.lastDrawTile);
     if (!r.ok) return;
     state.lastResult = r;
   } else {
@@ -2308,6 +2413,7 @@ function renderAdviceInfo() {
 
   const renderCard = (title, data, reason) => {
     const waitsHtml = data.waits.map((id) => tileHtml(id, "tiny")).join("") || "-";
+    const route = routeLabel(data.routeTag || "");
     return `
       <div class="advice-card">
         <div class="advice-title">${title}</div>
@@ -2315,6 +2421,7 @@ function renderAdviceInfo() {
         <div class="advice-line">${tr("adviceMetricSpeed", { dist: distLabel(data.dist), ukeire: data.ukeire, waits: data.waits.length })}</div>
         <div class="advice-line">${tr("adviceMetricValue", { value: data.valueScore.toFixed(1), speed: data.speedScore.toFixed(1) })}</div>
         <div class="advice-line">${tr("waitFor")} ${waitsHtml}</div>
+        ${route ? `<div class="advice-line">${tr("adviceRoutePrefix")}: ${route}</div>` : ""}
         <div class="advice-line">${reason}</div>
       </div>
     `;
@@ -2325,16 +2432,7 @@ function renderAdviceInfo() {
     el.adviceInfo.innerHTML = `
       <div class="ting-row">${tr("adviceHeaderBasic")}</div>
       <div class="advice-grid">
-        <div class="advice-card">
-          <div class="advice-title">${tr("adviceFast")}</div>
-          <div class="advice-line">${tr("adviceDiscard")} ${tileHtml(advice.fast.discard, "small")}</div>
-          <div class="advice-line">${tr("adviceMetricSpeed", {
-            dist: distLabel(advice.fast.dist),
-            ukeire: advice.fast.ukeire,
-            waits: advice.fast.waits.length,
-          })}</div>
-          <div class="advice-line">${fastReason}</div>
-        </div>
+        ${renderCard(tr("adviceFast"), advice.fast, fastReason)}
       </div>
     `;
     return;

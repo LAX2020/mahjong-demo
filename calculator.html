@@ -80,6 +80,14 @@
             <label><input id="aka5s" type="checkbox" /> 赤5索</label>
           </div>
 
+          <div class="option-row">
+            <span id="specialWinLabel">和牌事件</span>
+            <label><input id="chankan" type="checkbox" /> <span id="chankanLabel">抢杠</span></label>
+            <label><input id="rinshan" type="checkbox" /> <span id="rinshanLabel">岭上开花</span></label>
+            <label><input id="haitei" type="checkbox" /> <span id="haiteiLabel">海底捞月</span></label>
+            <label><input id="houtei" type="checkbox" /> <span id="houteiLabel">河底捞鱼</span></label>
+          </div>
+
           <div class="tile-group">
             <div class="tile-group-title" id="paletteTitle">点击牌面输入</div>
             <div id="tilePalette"></div>
@@ -141,8 +149,36 @@
         </table>
       </div>
     </section>
+
+    <section class="card" style="margin-top: 12px;">
+      <h2 id="referenceTableTitle">计分规则表</h2>
+      <div class="reference-table-grid">
+        <section class="reference-table-card">
+          <h3 id="refNonDealerTitle">闲家点数表（1-4番）</h3>
+          <div class="table-wrap"><table id="refNonDealerTable"></table></div>
+        </section>
+        <section class="reference-table-card">
+          <h3 id="refDealerTitle">庄家点数表（1-4番）</h3>
+          <div class="table-wrap"><table id="refDealerTable"></table></div>
+        </section>
+        <section class="reference-table-card">
+          <h3 id="refLimitTitle">满贯以上总番数查表</h3>
+          <div class="table-wrap"><table id="refLimitTable"></table></div>
+        </section>
+        <section class="reference-table-card">
+          <h3 id="refFuTitle">符数计算表</h3>
+          <div class="table-wrap"><table id="refFuTable"></table></div>
+        </section>
+        <section class="reference-table-card">
+          <h3 id="refDoraTitle">宝牌规则表</h3>
+          <div class="table-wrap"><table id="refDoraTable"></table></div>
+        </section>
+      </div>
+    </section>
   </main>
 
-  <script src="calculator.js"></script>
+  <script src="engine/riichi-engine.js?v=20260305b"></script>
+  <script src="engine/advice-engine.js?v=20260305b"></script>
+  <script src="calculator.js?v=20260305b"></script>
 </body>
 </html>
