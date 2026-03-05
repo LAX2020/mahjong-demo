@@ -22,6 +22,9 @@ const state = {
   logEntries: [],
   logCounter: 0,
   currentRoundLogId: null,
+  autoHu: true,
+  autoTsumogiri: false,
+  autoTickScheduled: false,
 };
 
 const LOG_LIMIT = 60;
@@ -53,6 +56,11 @@ const el = {
   handActionsCol: document.getElementById("handActionsCol"),
   actionBar: document.getElementById("actionBar"),
   kongBar: document.getElementById("kongBar"),
+  autoOps: document.getElementById("autoOps"),
+  autoHuToggle: document.getElementById("autoHuToggle"),
+  autoTsumogiriToggle: document.getElementById("autoTsumogiriToggle"),
+  autoHuLabel: document.getElementById("autoHuLabel"),
+  autoTsumogiriLabel: document.getElementById("autoTsumogiriLabel"),
   log: document.getElementById("log"),
   p0: document.getElementById("p0"),
   p1: document.getElementById("p1"),
@@ -172,6 +180,8 @@ const I18N = {
     actionReasonPassBasic: "保留手牌弹性, 继续摸牌通常更稳。",
     actionReasonCallFast: "副露可提速, 更快进入可和状态。",
     actionReasonCallValue: "副露会损失部分打点潜力。",
+    autoHu: "自动和牌",
+    autoTsumogiri: "自动摸切",
     discardTo: "打",
     waitFor: "听",
     meldTypeChi: "吃",
@@ -290,6 +300,8 @@ const I18N = {
     actionReasonPassBasic: "Keeps hand flexibility and stable progression.",
     actionReasonCallFast: "Call speeds up hand progression.",
     actionReasonCallValue: "Open call reduces some value potential.",
+    autoHu: "Auto Win",
+    autoTsumogiri: "Auto Tsumogiri",
     discardTo: "Discard",
     waitFor: "wait",
     meldTypeChi: "Chi",
@@ -408,6 +420,8 @@ const I18N = {
     actionReasonPassBasic: "手牌の柔軟性を維持し, 進行を安定。",
     actionReasonCallFast: "副露で速度が上がりやすい。",
     actionReasonCallValue: "副露で打点期待が一部下がる。",
+    autoHu: "自動和了",
+    autoTsumogiri: "自動ツモ切り",
     discardTo: "切る",
     waitFor: "待ち",
     meldTypeChi: "チー",
@@ -532,6 +546,8 @@ function renderStaticText() {
   if (el.ruleLabel) el.ruleLabel.textContent = tr("ruleLabel");
   if (el.themeLabel) el.themeLabel.textContent = tr("themeLabel");
   if (el.langLabel) el.langLabel.textContent = tr("langLabel");
+  if (el.autoHuLabel) el.autoHuLabel.textContent = tr("autoHu");
+  if (el.autoTsumogiriLabel) el.autoTsumogiriLabel.textContent = tr("autoTsumogiri");
   if (el.ruleSelect && el.ruleSelect.options.length >= 2) {
     el.ruleSelect.options[0].text = tr("ruleBasic");
     el.ruleSelect.options[1].text = tr("ruleRiichiLite");
@@ -546,6 +562,11 @@ function renderStaticText() {
     el.langSelect.options[2].text = tr("langJa");
   }
   updateRuleInfo();
+}
+
+function syncAutoToggles() {
+  if (el.autoHuToggle) el.autoHuToggle.checked = !!state.autoHu;
+  if (el.autoTsumogiriToggle) el.autoTsumogiriToggle.checked = !!state.autoTsumogiri;
 }
 
 function refreshPlayerNames() {
@@ -1819,89 +1840,133 @@ function refreshHumanActions() {
   el.kongBar.innerHTML = "";
   if (el.handActionsCol) el.handActionsCol.classList.remove("active");
 
-  if (state.gameOver) return;
-
-  const human = state.players[0];
-  if (state.currentPlayer === 0 && canPlayerWinNow(human, "tsumo", state.lastDrawTile)) {
-    el.actionBar.appendChild(actionItem(actionButton(tr("selfDraw"), [], () => finalizeHumanTsumo())));
-  }
-
-  if (state.currentPlayer === 0 && state.humanMustDiscard && !state.waitingClaim && state.ruleSet === "riichi_lite") {
-    const ri = canDeclareRiichi(human);
-    if (state.pendingRiichi) {
-      el.actionBar.appendChild(
-        actionItem(
-          actionButton(tr("cancelRiichi"), [], () => {
-            state.pendingRiichi = false;
-            state.riichiDiscardCandidates = [];
-            renderAll();
-            refreshHumanActions();
-          })
-        )
-      );
-    } else if (ri.ok && !human.riichi) {
-      el.actionBar.appendChild(
-        actionItem(
-          actionButton(tr("riichi"), [], () => {
-            state.pendingRiichi = true;
-            state.riichiDiscardCandidates = ri.discards.slice();
-            logI18n("logRiichiDeclare");
-            renderAll();
-            refreshHumanActions();
-          })
-        )
-      );
+  if (!state.gameOver) {
+    const human = state.players[0];
+    if (state.currentPlayer === 0 && canPlayerWinNow(human, "tsumo", state.lastDrawTile)) {
+      el.actionBar.appendChild(actionItem(actionButton(tr("selfDraw"), [], () => finalizeHumanTsumo())));
     }
-  }
 
-  if (state.currentPlayer === 0 && state.humanMustDiscard && !state.waitingClaim) {
-    const counts = countTiles(human.hand);
-    for (let id = 0; id < 34; id += 1) {
-      if (counts[id] === 4) {
-        el.kongBar.appendChild(actionButton(tr("concealedKong"), [id, id, id, id], () => doConcealedKong(id)));
+    if (state.currentPlayer === 0 && state.humanMustDiscard && !state.waitingClaim && state.ruleSet === "riichi_lite") {
+      const ri = canDeclareRiichi(human);
+      if (state.pendingRiichi) {
+        el.actionBar.appendChild(
+          actionItem(
+            actionButton(tr("cancelRiichi"), [], () => {
+              state.pendingRiichi = false;
+              state.riichiDiscardCandidates = [];
+              renderAll();
+              refreshHumanActions();
+            })
+          )
+        );
+      } else if (ri.ok && !human.riichi) {
+        el.actionBar.appendChild(
+          actionItem(
+            actionButton(tr("riichi"), [], () => {
+              state.pendingRiichi = true;
+              state.riichiDiscardCandidates = ri.discards.slice();
+              logI18n("logRiichiDeclare");
+              renderAll();
+              refreshHumanActions();
+            })
+          )
+        );
       }
     }
-  }
 
-  if (state.waitingClaim && state.claimOptions) {
-    const { chi, pong, kong, hu } = state.claimOptions;
-    const hints = buildClaimActionHints(state.claimOptions, state.claimTile, state.ruleSet);
-
-    if (hu) {
-      el.actionBar.appendChild(actionItem(actionButton(tr(getRonActionKey()), [state.claimTile], () => claimHu()), hints.hu || ""));
+    if (state.currentPlayer === 0 && state.humanMustDiscard && !state.waitingClaim) {
+      const counts = countTiles(human.hand);
+      for (let id = 0; id < 34; id += 1) {
+        if (counts[id] === 4) {
+          el.kongBar.appendChild(actionButton(tr("concealedKong"), [id, id, id, id], () => doConcealedKong(id)));
+        }
+      }
     }
 
-    if (kong) {
-      el.actionBar.appendChild(
-        actionItem(
-          actionButton(tr("kong"), [state.claimTile, state.claimTile, state.claimTile, state.claimTile], () => claimKong()),
-          hints.kong || ""
-        )
-      );
-    }
+    if (state.waitingClaim && state.claimOptions) {
+      const { chi, pong, kong, hu } = state.claimOptions;
+      const hints = buildClaimActionHints(state.claimOptions, state.claimTile, state.ruleSet);
 
-    if (pong) {
-      el.actionBar.appendChild(
-        actionItem(actionButton(tr("pong"), [state.claimTile, state.claimTile, state.claimTile], () => claimPong()), hints.pong || "")
-      );
-    }
+      if (hu) {
+        el.actionBar.appendChild(actionItem(actionButton(tr(getRonActionKey()), [state.claimTile], () => claimHu()), hints.hu || ""));
+      }
 
-    if (chi.length > 0) {
-      chi.forEach((pattern, i) => {
-        el.actionBar.appendChild(actionItem(actionButton(tr("chi"), pattern, () => claimChi(i)), hints[`chi_${i}`] || ""));
-      });
-    }
+      if (kong) {
+        el.actionBar.appendChild(
+          actionItem(
+            actionButton(tr("kong"), [state.claimTile, state.claimTile, state.claimTile, state.claimTile], () => claimKong()),
+            hints.kong || ""
+          )
+        );
+      }
 
-    const pass = document.createElement("button");
-    pass.textContent = tr("pass");
-    pass.onclick = passClaim;
-    el.actionBar.appendChild(actionItem(pass, hints.pass || ""));
+      if (pong) {
+        el.actionBar.appendChild(
+          actionItem(actionButton(tr("pong"), [state.claimTile, state.claimTile, state.claimTile], () => claimPong()), hints.pong || "")
+        );
+      }
+
+      if (chi.length > 0) {
+        chi.forEach((pattern, i) => {
+          el.actionBar.appendChild(actionItem(actionButton(tr("chi"), pattern, () => claimChi(i)), hints[`chi_${i}`] || ""));
+        });
+      }
+
+      const pass = document.createElement("button");
+      pass.textContent = tr("pass");
+      pass.onclick = passClaim;
+      el.actionBar.appendChild(actionItem(pass, hints.pass || ""));
+    }
   }
 
   if (el.handActionsCol) {
     const hasAny = el.actionBar.children.length > 0 || el.kongBar.children.length > 0;
-    el.handActionsCol.classList.toggle("active", hasAny);
+    const hasAutoOps = !!el.autoOps;
+    el.handActionsCol.classList.toggle("active", hasAny || hasAutoOps);
   }
+
+  if (!state.gameOver) scheduleAutoPlay();
+}
+
+function scheduleAutoPlay() {
+  if (state.autoTickScheduled) return;
+  state.autoTickScheduled = true;
+  setTimeout(() => {
+    state.autoTickScheduled = false;
+    runAutoPlayTick();
+  }, 0);
+}
+
+function runAutoPlayTick() {
+  if (state.gameOver || state.currentPlayer !== 0) return;
+  const human = state.players[0];
+  if (!human) return;
+
+  if (state.waitingClaim && state.claimOptions) {
+    if (state.autoHu && state.claimOptions.hu) {
+      claimHu();
+      return;
+    }
+    if (state.autoTsumogiri) {
+      passClaim();
+      return;
+    }
+    return;
+  }
+
+  if (!state.humanMustDiscard) return;
+
+  if (state.autoHu && canPlayerWinNow(human, "tsumo", state.lastDrawTile)) {
+    finalizeHumanTsumo();
+    return;
+  }
+
+  if (!state.autoTsumogiri || state.pendingRiichi) return;
+  if (state.lastDrawTile === null || state.lastDrawTile === undefined) return;
+
+  let idx = human.hand.lastIndexOf(state.lastDrawTile);
+  if (idx < 0) idx = human.hand.length - 1;
+  if (idx >= 0) humanDiscard(idx);
 }
 
 function nextPlayer(i) {
@@ -1991,8 +2056,14 @@ function startTurn(playerIdx, needDraw) {
     // Riichi locked state: auto tsumogiri unless tsumo is available.
     const human = state.players[0];
     if (state.ruleSet === "riichi_lite" && human.riichi && !state.pendingRiichi) {
-      if (canPlayerWinNow(human, "tsumo", state.lastDrawTile)) {
-        finalizeHumanTsumo();
+      const canTsumoNow = canPlayerWinNow(human, "tsumo", state.lastDrawTile);
+      if (canTsumoNow) {
+        if (state.autoHu) {
+          finalizeHumanTsumo();
+          return;
+        }
+        refreshHumanActions();
+        renderAll();
         return;
       }
       const tsumogiriTile = state.lastDrawTile;
@@ -2478,6 +2549,21 @@ if (el.ruleSelect) {
   });
 }
 
+if (el.autoHuToggle) {
+  el.autoHuToggle.addEventListener("change", (e) => {
+    state.autoHu = !!e.target.checked;
+    scheduleAutoPlay();
+  });
+}
+
+if (el.autoTsumogiriToggle) {
+  el.autoTsumogiriToggle.addEventListener("change", (e) => {
+    state.autoTsumogiri = !!e.target.checked;
+    scheduleAutoPlay();
+  });
+}
+
+syncAutoToggles();
 el.newGameBtn.addEventListener("click", initGame);
 initTheme();
 initLang();

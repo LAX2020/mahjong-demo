@@ -204,6 +204,29 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   margin-bottom: 10px;
 }
 
+.auto-ops {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+body[data-theme="dark"] .auto-ops {
+  background: rgba(31, 41, 55, 0.6);
+}
+
+.auto-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--sub);
+}
+
 .ting-info {
   margin: 4px 0 8px;
   color: var(--sub);
