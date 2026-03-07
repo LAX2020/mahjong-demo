@@ -215,6 +215,17 @@ textarea {
   color: var(--sub);
 }
 
+.default-strategy-list {
+  margin: 4px 0 0;
+  padding-left: 22px;
+  color: var(--sub);
+}
+
+.default-strategy-list li {
+  margin: 4px 0;
+  line-height: 1.45;
+}
+
 .result-title {
   color: var(--text);
   font-weight: 700;

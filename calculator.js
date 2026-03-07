@@ -21,7 +21,17 @@ const I18N = {
     colFu: "符", colHan1: "1番", colHan2: "2番", colHan3: "3番", colHan4: "4番", colRange: "番数区间", colLimit: "限定名", colRon: "荣和", colTsumo: "自摸", colRule: "规则", colDesc: "说明",
     limitMangan: "满贯", limitHaneman: "跳满", limitBaiman: "倍满", limitSanbaiman: "三倍满", limitYakuman: "役满",
     currentHandView: "当前手牌",
-    textHeader: "文本输入", adviceHeader: "出牌建议",
+    textHeader: "文本输入", adviceHeader: "出牌建议", defaultStrategyHeader: "默认策略",
+    defaultStrategyItem1: "客风孤张字牌（最先出）",
+    defaultStrategyItem2: "一般孤张字牌（非役牌）",
+    defaultStrategyItem3: "孤张幺九（1/9）",
+    defaultStrategyItem4: "孤张2/8",
+    defaultStrategyItem5: "孤张3-7",
+    defaultStrategyItem6: "有连接但仍偏孤的数牌",
+    defaultStrategyItem7: "需要拆搭子/好形的数牌（偏后）",
+    defaultStrategyItem8: "对子（更后）",
+    defaultStrategyItem9: "刻子/顺子核心牌（最后）",
+    defaultStrategyItem10: "宝牌（Dora，riichi_lite 下通常最晚出）",
     navScoreboard: "计分板块",
     winTypeRon: "荣和", winTypeTsumo: "自摸",
     windE: "东", windS: "南", windW: "西", windN: "北",
@@ -72,7 +82,17 @@ const I18N = {
     colFu: "Fu", colHan1: "1 han", colHan2: "2 han", colHan3: "3 han", colHan4: "4 han", colRange: "Han range", colLimit: "Limit", colRon: "Ron", colTsumo: "Tsumo", colRule: "Rule", colDesc: "Description",
     limitMangan: "Mangan", limitHaneman: "Haneman", limitBaiman: "Baiman", limitSanbaiman: "Sanbaiman", limitYakuman: "Yakuman",
     currentHandView: "Current hand",
-    textHeader: "Text Input", adviceHeader: "Discard Advice",
+    textHeader: "Text Input", adviceHeader: "Discard Advice", defaultStrategyHeader: "Default Strategy",
+    defaultStrategyItem1: "Guest-wind honor singleton (discard first)",
+    defaultStrategyItem2: "Non-yakuhai honor singleton",
+    defaultStrategyItem3: "Isolated terminal (1/9)",
+    defaultStrategyItem4: "Isolated 2/8",
+    defaultStrategyItem5: "Isolated 3-7",
+    defaultStrategyItem6: "Connected but still weak suited singleton",
+    defaultStrategyItem7: "Tiles that break taatsu/good shape (later)",
+    defaultStrategyItem8: "Pairs (later)",
+    defaultStrategyItem9: "Core tiles of meld/sequence (last)",
+    defaultStrategyItem10: "Dora (usually latest in riichi_lite)",
     navScoreboard: "Scoreboard",
     winTypeRon: "Ron", winTypeTsumo: "Tsumo",
     windE: "East", windS: "South", windW: "West", windN: "North",
@@ -123,7 +143,17 @@ const I18N = {
     colFu: "符", colHan1: "1翻", colHan2: "2翻", colHan3: "3翻", colHan4: "4翻", colRange: "翻数区間", colLimit: "打点名", colRon: "ロン", colTsumo: "ツモ", colRule: "規則", colDesc: "説明",
     limitMangan: "満貫", limitHaneman: "跳満", limitBaiman: "倍満", limitSanbaiman: "三倍満", limitYakuman: "役満",
     currentHandView: "現在手牌",
-    textHeader: "テキスト入力", adviceHeader: "打牌提案",
+    textHeader: "テキスト入力", adviceHeader: "打牌提案", defaultStrategyHeader: "デフォルト戦略",
+    defaultStrategyItem1: "客風の孤立字牌（最優先で切る）",
+    defaultStrategyItem2: "一般の孤立字牌（役牌以外）",
+    defaultStrategyItem3: "孤立した么九牌（1/9）",
+    defaultStrategyItem4: "孤立した2/8",
+    defaultStrategyItem5: "孤立した3-7",
+    defaultStrategyItem6: "つながりはあるが弱い孤立寄り数牌",
+    defaultStrategyItem7: "ターツ/好形を崩す牌（後回し）",
+    defaultStrategyItem8: "対子（さらに後）",
+    defaultStrategyItem9: "刻子/順子の中核牌（最後）",
+    defaultStrategyItem10: "ドラ（riichi_lite では通常もっとも遅い）",
     navScoreboard: "計分板",
     winTypeRon: "ロン", winTypeTsumo: "ツモ",
     windE: "東", windS: "南", windW: "西", windN: "北",
@@ -172,7 +202,7 @@ const el = {
   clockToggle: document.getElementById("clockToggle"), clock: document.getElementById("clock"), clockTime: document.getElementById("clockTime"), clockDate: document.getElementById("clockDate"),
   tilePalette: document.getElementById("tilePalette"), handMeta: document.getElementById("handMeta"), handZone: document.getElementById("handZone"),
   textInput: document.getElementById("textInput"), textError: document.getElementById("textError"),
-  result: document.getElementById("result"), advice: document.getElementById("advice"), doraCalc: document.getElementById("doraCalc"), rulesBody: document.getElementById("rulesBody"),
+  result: document.getElementById("result"), advice: document.getElementById("advice"), defaultStrategy: document.getElementById("defaultStrategy"), doraCalc: document.getElementById("doraCalc"), rulesBody: document.getElementById("rulesBody"),
   autoSort: document.getElementById("autoSort"), winType: document.getElementById("winType"), seatWind: document.getElementById("seatWind"), roundWind: document.getElementById("roundWind"),
   dealer: document.getElementById("dealer"), riichi: document.getElementById("riichi"), ippatsu: document.getElementById("ippatsu"), doubleRiichi: document.getElementById("doubleRiichi"),
   chankan: document.getElementById("chankan"), rinshan: document.getElementById("rinshan"), haitei: document.getElementById("haitei"), houtei: document.getElementById("houtei"),
@@ -768,6 +798,13 @@ function renderDoraPanel(tiles) {
   ].join("");
 }
 
+function renderDefaultStrategy() {
+  if (!el.defaultStrategy) return;
+  const items = [];
+  for (let i = 1; i <= 10; i += 1) items.push(`<li>${tr(`defaultStrategyItem${i}`)}</li>`);
+  el.defaultStrategy.innerHTML = `<ol class="default-strategy-list">${items.join("")}</ol>`;
+}
+
 function renderResult() {
   const hand = allTilesForCount();
   const resultLines = []; const adviceLines = [];
@@ -849,6 +886,7 @@ function applyLanguage() {
   set("referenceTableTitle", "refTableTitle"); set("refNonDealerTitle", "refNonDealer"); set("refDealerTitle", "refDealer"); set("refLimitTitle", "refLimit"); set("refFuTitle", "refFu"); set("refDoraTitle", "refDora");
   const th = document.getElementById("textHeader"); if (th) th.textContent = tr("textHeader");
   const ah = document.getElementById("adviceHeader"); if (ah) ah.textContent = tr("adviceHeader");
+  const dsh = document.getElementById("defaultStrategyHeader"); if (dsh) dsh.textContent = tr("defaultStrategyHeader");
   const sbNavBtn = document.getElementById("scoreboardBtn"); if (sbNavBtn) sbNavBtn.textContent = tr("navScoreboard");
   if (el.winType && el.winType.options.length >= 2) {
     el.winType.options[0].text = tr("winTypeRon");
@@ -882,6 +920,7 @@ function applyLanguage() {
   }
   renderReferenceTables();
   renderRules();
+  renderDefaultStrategy();
 }
 
 function updateClock() {
