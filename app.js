@@ -70,6 +70,7 @@ const el = {
   autoTsumogiriToggle: document.getElementById("autoTsumogiriToggle"),
   autoHuLabel: document.getElementById("autoHuLabel"),
   autoTsumogiriLabel: document.getElementById("autoTsumogiriLabel"),
+  calcNavBtn: document.getElementById("calcNavBtn"),
   log: document.getElementById("log"),
   p0: document.getElementById("p0"),
   p1: document.getElementById("p1"),
@@ -82,6 +83,7 @@ const I18N = {
     title: "Mahjong Demo",
     sub: "基础规则: 摸牌, 打牌, 吃, 碰, 杠, 简化胡牌判定(4面子+1雀头)",
     newGame: "新开一局",
+    calcNav: "算番算符",
     handTitle: "你的手牌",
     logTitle: "日志",
     ruleLabel: "规则",
@@ -210,6 +212,7 @@ const I18N = {
     title: "Mahjong Demo",
     sub: "Basic rules: draw, discard, chi, pong, kong, simplified win check (4 melds + 1 pair)",
     newGame: "New Round",
+    calcNav: "Han/Fu Calculator",
     handTitle: "Your Hand",
     logTitle: "Log",
     ruleLabel: "Rules",
@@ -338,6 +341,7 @@ const I18N = {
     title: "Mahjong Demo",
     sub: "基本ルール: ツモ, 打牌, チー, ポン, カン, 簡易和了判定(4面子+1雀頭)",
     newGame: "新局",
+    calcNav: "翻符計算",
     handTitle: "あなたの手牌",
     logTitle: "ログ",
     ruleLabel: "ルール",
@@ -574,6 +578,7 @@ function renderStaticText() {
   if (el.titleMain) el.titleMain.textContent = tr("title");
   if (el.subText) el.subText.textContent = tr("sub");
   if (el.newGameBtn) el.newGameBtn.textContent = tr("newGame");
+  if (el.calcNavBtn) el.calcNavBtn.textContent = tr("calcNav");
   if (el.handTitle) el.handTitle.textContent = tr("handTitle");
   if (el.logTitle) el.logTitle.textContent = tr("logTitle");
   if (el.ruleLabel) el.ruleLabel.textContent = tr("ruleLabel");

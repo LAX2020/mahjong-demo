@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>算番算符</title>
-  <link rel="stylesheet" href="calculator.css?v=20260307c" />
+  <title>半庄计分板（实验）</title>
+  <link rel="stylesheet" href="scoreboard.css?v=20260307c" />
 </head>
 <body>
   <main class="container">
     <section class="topbar">
       <button id="backBtn" class="ghost">返回主页面</button>
-      <button id="scoreboardBtn" class="ghost" onclick="window.open('scoreboard.html','_blank','noopener,noreferrer')">计分板块</button>
       <h1 id="pageTitle">算番算符</h1>
       <span class="spacer"></span>
       <label for="langSelect" id="langLabel">语言</label>
@@ -32,6 +31,14 @@
     </section>
 
     <p id="subText" class="sub">点击或文本都可以输入牌。文本自动同步图形输入。</p>
+
+    <section id="scoreboardPanel" class="card scoreboard-panel">
+      <div class="scoreboard-head">
+        <button id="scoreboardToggleBtn" class="ghost">折叠计分板</button>
+        <h2 id="scoreboardTitle">半庄计分板（实验）</h2>
+      </div>
+      <div id="scoreboardBody"></div>
+    </section>
 
     <section class="main-workspace">
       <div class="left-panel">
@@ -181,5 +188,6 @@
   <script src="engine/riichi-engine.js?v=20260307c"></script>
   <script src="engine/advice-engine.js?v=20260307c"></script>
   <script src="calculator.js?v=20260307c"></script>
+  <script src="scoreboard.js?v=20260307c"></script>
 </body>
 </html>

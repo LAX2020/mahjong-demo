@@ -19,7 +19,39 @@ const I18N = {
     tenpaiTitle: "13张听牌点数预览", ronLabel: "荣和", tsumoLabel: "自摸", winRouteOnly: "当前已和牌，显示和牌计算结果。",
     yakuDetail: "符合条件", none: "无", refTableTitle: "计分规则表", refNonDealer: "闲家点数表（1-4番）", refDealer: "庄家点数表（1-4番）", refLimit: "满贯以上总番数查表", refFu: "符数计算表", refDora: "宝牌规则表",
     colFu: "符", colHan1: "1番", colHan2: "2番", colHan3: "3番", colHan4: "4番", colRange: "番数区间", colLimit: "限定名", colRon: "荣和", colTsumo: "自摸", colRule: "规则", colDesc: "说明",
-    limitMangan: "满贯", limitHaneman: "跳满", limitBaiman: "倍满", limitSanbaiman: "三倍满", limitYakuman: "役满"
+    limitMangan: "满贯", limitHaneman: "跳满", limitBaiman: "倍满", limitSanbaiman: "三倍满", limitYakuman: "役满",
+    currentHandView: "当前手牌",
+    textHeader: "文本输入", adviceHeader: "出牌建议",
+    navScoreboard: "计分板块",
+    winTypeRon: "荣和", winTypeTsumo: "自摸",
+    windE: "东", windS: "南", windW: "西", windN: "北",
+    aka5m: "赤5万", aka5p: "赤5筒", aka5s: "赤5索",
+    ruleIdx: "序号", ruleName: "名称", ruleHan: "番数", ruleOpen: "是否可鸣牌", ruleSpecial: "特殊规则",
+    hanSuffix: "番", fuSuffix: "符", totalPrefix: "合计",
+    ptRonDealer: "庄家荣和", ptRonNonDealer: "闲家荣和", ptTsumoDealer: "庄家自摸", ptTsumoNonDealer: "闲家自摸",
+    noClaimAdvice13: "当前无可鸣牌建议（13张阶段仅显示吃/碰/杠）。",
+    refNonDealerRon: "闲家荣和", refNonDealerTsumo: "闲家自摸(庄/闲)", refDealerRon: "庄家荣和", refDealerTsumo: "庄家自摸(all)",
+    refHan5: "5番", refHan67: "6-7番", refHan810: "8-10番", refHan1112: "11-12番", refHan13p: "13番及以上",
+    fuValue: "符值",
+    fuBase: "底符", fuBaseDesc: "固定底符",
+    fuClosedRon: "门前荣和", fuClosedRonDesc: "门清状态下荣和",
+    fuTsumo: "自摸", fuTsumoDesc: "自摸和牌",
+    fuPairYakuhai: "雀头：自风/场风/三元", fuPairYakuhaiDesc: "自风牌、场风牌、中发白对子",
+    fuPairDoubleWind: "雀头：连风", fuPairDoubleWindDesc: "自风与场风相同",
+    fuTripletOpen: "明刻(中张/幺九)", fuTripletOpenDesc: "2-8数牌 / 1-9与字牌",
+    fuTripletClosed: "暗刻(中张/幺九)", fuTripletClosedDesc: "2-8数牌 / 1-9与字牌",
+    fuKongOpen: "明杠(中张/幺九)", fuKongOpenDesc: "2-8数牌 / 1-9与字牌",
+    fuKongClosed: "暗杠(中张/幺九)", fuKongClosedDesc: "2-8数牌 / 1-9与字牌",
+    fuWaitShape: "听牌形：单骑/边张/嵌张", fuWaitShapeDesc: "任一成立则加符",
+    fuRoundUp: "符数进位", fuRoundUpVal: "向上取整到10", fuRoundUpDesc: "例如32符->40符",
+    fuSpecial: "特例", fuSpecialVal: "固定符", fuSpecialDesc: "平和自摸20符；七对子25符；副露不足30符按30符",
+    doraDef: "宝牌定义", doraDefDesc: "宝牌指示牌的下一张为宝牌（顺序循环）",
+    doraCycleNum: "数牌循环", doraCycleNumDesc: "1-9循环（9后回1）",
+    doraCycleWind: "风牌循环", doraCycleWindDesc: "东→南→西→北→东",
+    doraCycleDragon: "三元牌循环", doraCycleDragonDesc: "中→发→白→中",
+    doraAka: "赤宝牌", doraAkaDesc: "赤5万/赤5筒/赤5索，各+1番",
+    doraUra: "里宝牌", doraUraDesc: "仅立直和牌时计入",
+    doraNature: "宝牌性质", doraNatureDesc: "宝牌只加番，不能单独作为和牌役"
   },
   en: {
     pageTitle: "Han/Fu Calculator", sub: "Input by tile-click or text. Both stay synchronized.",
@@ -38,7 +70,39 @@ const I18N = {
     tenpaiTitle: "13-tile tenpai value preview", ronLabel: "Ron", tsumoLabel: "Tsumo", winRouteOnly: "Hand is already winning. Showing score calculation.",
     yakuDetail: "Yaku details", none: "None", refTableTitle: "Scoring Tables", refNonDealer: "Non-dealer table (1-4 han)", refDealer: "Dealer table (1-4 han)", refLimit: "Mangan and above", refFu: "Fu table", refDora: "Dora rules",
     colFu: "Fu", colHan1: "1 han", colHan2: "2 han", colHan3: "3 han", colHan4: "4 han", colRange: "Han range", colLimit: "Limit", colRon: "Ron", colTsumo: "Tsumo", colRule: "Rule", colDesc: "Description",
-    limitMangan: "Mangan", limitHaneman: "Haneman", limitBaiman: "Baiman", limitSanbaiman: "Sanbaiman", limitYakuman: "Yakuman"
+    limitMangan: "Mangan", limitHaneman: "Haneman", limitBaiman: "Baiman", limitSanbaiman: "Sanbaiman", limitYakuman: "Yakuman",
+    currentHandView: "Current hand",
+    textHeader: "Text Input", adviceHeader: "Discard Advice",
+    navScoreboard: "Scoreboard",
+    winTypeRon: "Ron", winTypeTsumo: "Tsumo",
+    windE: "East", windS: "South", windW: "West", windN: "North",
+    aka5m: "Aka 5m", aka5p: "Aka 5p", aka5s: "Aka 5s",
+    ruleIdx: "No.", ruleName: "Name", ruleHan: "Han", ruleOpen: "Open allowed", ruleSpecial: "Special rule",
+    hanSuffix: "han", fuSuffix: "fu", totalPrefix: "total",
+    ptRonDealer: "Dealer Ron", ptRonNonDealer: "Non-dealer Ron", ptTsumoDealer: "Dealer Tsumo", ptTsumoNonDealer: "Non-dealer Tsumo",
+    noClaimAdvice13: "No call advice for now (13-tile phase only shows chi/pong/kong).",
+    refNonDealerRon: "Non-dealer Ron", refNonDealerTsumo: "Non-dealer Tsumo (dealer/non-dealer)", refDealerRon: "Dealer Ron", refDealerTsumo: "Dealer Tsumo (all)",
+    refHan5: "5 han", refHan67: "6-7 han", refHan810: "8-10 han", refHan1112: "11-12 han", refHan13p: "13+ han",
+    fuValue: "Fu value",
+    fuBase: "Base fu", fuBaseDesc: "Fixed +20",
+    fuClosedRon: "Closed Ron", fuClosedRonDesc: "Closed hand Ron +10",
+    fuTsumo: "Tsumo", fuTsumoDesc: "Self-draw +2",
+    fuPairYakuhai: "Pair: seat/round/dragon", fuPairYakuhaiDesc: "Seat wind, round wind, dragon pair",
+    fuPairDoubleWind: "Pair: double wind", fuPairDoubleWindDesc: "Seat wind equals round wind",
+    fuTripletOpen: "Open triplet (simple/terminal)", fuTripletOpenDesc: "2-8 suited / terminal & honor",
+    fuTripletClosed: "Closed triplet (simple/terminal)", fuTripletClosedDesc: "2-8 suited / terminal & honor",
+    fuKongOpen: "Open kong (simple/terminal)", fuKongOpenDesc: "2-8 suited / terminal & honor",
+    fuKongClosed: "Closed kong (simple/terminal)", fuKongClosedDesc: "2-8 suited / terminal & honor",
+    fuWaitShape: "Wait shape: tanki/penchan/kanchan", fuWaitShapeDesc: "Any one applies +2",
+    fuRoundUp: "Fu rounding", fuRoundUpVal: "Round up to 10", fuRoundUpDesc: "Example: 32 fu -> 40 fu",
+    fuSpecial: "Special cases", fuSpecialVal: "Fixed fu", fuSpecialDesc: "Pinfu tsumo 20 fu; chiitoitsu 25 fu; open hand min 30 fu",
+    doraDef: "Dora definition", doraDefDesc: "The next tile after indicator is dora",
+    doraCycleNum: "Number cycle", doraCycleNumDesc: "1-9 loop (9 -> 1)",
+    doraCycleWind: "Wind cycle", doraCycleWindDesc: "East -> South -> West -> North -> East",
+    doraCycleDragon: "Dragon cycle", doraCycleDragonDesc: "White -> Green -> Red -> White",
+    doraAka: "Aka dora", doraAkaDesc: "Aka 5m/5p/5s, each +1 han",
+    doraUra: "Ura dora", doraUraDesc: "Counted only when winning after riichi",
+    doraNature: "Dora nature", doraNatureDesc: "Dora adds han only; cannot be sole yaku"
   },
   ja: {
     pageTitle: "翻符計算", sub: "牌クリック入力とテキスト入力を同期します。",
@@ -57,7 +121,39 @@ const I18N = {
     tenpaiTitle: "13枚 聴牌打点プレビュー", ronLabel: "ロン", tsumoLabel: "ツモ", winRouteOnly: "和了形のため、和了計算のみ表示します。",
     yakuDetail: "役詳細", none: "なし", refTableTitle: "点数計算表", refNonDealer: "子の点数表（1-4翻）", refDealer: "親の点数表（1-4翻）", refLimit: "満貫以上一覧", refFu: "符計算表", refDora: "ドラ規則",
     colFu: "符", colHan1: "1翻", colHan2: "2翻", colHan3: "3翻", colHan4: "4翻", colRange: "翻数区間", colLimit: "打点名", colRon: "ロン", colTsumo: "ツモ", colRule: "規則", colDesc: "説明",
-    limitMangan: "満貫", limitHaneman: "跳満", limitBaiman: "倍満", limitSanbaiman: "三倍満", limitYakuman: "役満"
+    limitMangan: "満貫", limitHaneman: "跳満", limitBaiman: "倍満", limitSanbaiman: "三倍満", limitYakuman: "役満",
+    currentHandView: "現在手牌",
+    textHeader: "テキスト入力", adviceHeader: "打牌提案",
+    navScoreboard: "計分板",
+    winTypeRon: "ロン", winTypeTsumo: "ツモ",
+    windE: "東", windS: "南", windW: "西", windN: "北",
+    aka5m: "赤5萬", aka5p: "赤5筒", aka5s: "赤5索",
+    ruleIdx: "番号", ruleName: "名称", ruleHan: "翻数", ruleOpen: "鳴き可否", ruleSpecial: "特別規則",
+    hanSuffix: "翻", fuSuffix: "符", totalPrefix: "合計",
+    ptRonDealer: "親ロン", ptRonNonDealer: "子ロン", ptTsumoDealer: "親ツモ", ptTsumoNonDealer: "子ツモ",
+    noClaimAdvice13: "現在鳴き提案はありません（13枚段階はチー/ポン/カンのみ表示）。",
+    refNonDealerRon: "子ロン", refNonDealerTsumo: "子ツモ(親/子)", refDealerRon: "親ロン", refDealerTsumo: "親ツモ(all)",
+    refHan5: "5翻", refHan67: "6-7翻", refHan810: "8-10翻", refHan1112: "11-12翻", refHan13p: "13翻以上",
+    fuValue: "符値",
+    fuBase: "底符", fuBaseDesc: "固定 +20",
+    fuClosedRon: "門前ロン", fuClosedRonDesc: "門前ロン +10",
+    fuTsumo: "ツモ", fuTsumoDesc: "ツモ和了 +2",
+    fuPairYakuhai: "雀頭: 自風/場風/三元", fuPairYakuhaiDesc: "自風・場風・三元牌の対子",
+    fuPairDoubleWind: "雀頭: 連風", fuPairDoubleWindDesc: "自風と場風が同一",
+    fuTripletOpen: "明刻(中張/么九)", fuTripletOpenDesc: "2-8数牌 / 么九・字牌",
+    fuTripletClosed: "暗刻(中張/么九)", fuTripletClosedDesc: "2-8数牌 / 么九・字牌",
+    fuKongOpen: "明槓(中張/么九)", fuKongOpenDesc: "2-8数牌 / 么九・字牌",
+    fuKongClosed: "暗槓(中張/么九)", fuKongClosedDesc: "2-8数牌 / 么九・字牌",
+    fuWaitShape: "待ち形: 単騎/辺張/嵌張", fuWaitShapeDesc: "いずれか成立で +2",
+    fuRoundUp: "符切り上げ", fuRoundUpVal: "10単位切り上げ", fuRoundUpDesc: "例: 32符 -> 40符",
+    fuSpecial: "特例", fuSpecialVal: "固定符", fuSpecialDesc: "平和ツモ20符; 七対子25符; 副露は30符未満を30符",
+    doraDef: "ドラ定義", doraDefDesc: "表示牌の次牌がドラ",
+    doraCycleNum: "数牌循環", doraCycleNumDesc: "1-9循環(9の次は1)",
+    doraCycleWind: "風牌循環", doraCycleWindDesc: "東->南->西->北->東",
+    doraCycleDragon: "三元循環", doraCycleDragonDesc: "白->發->中->白",
+    doraAka: "赤ドラ", doraAkaDesc: "赤5萬/5筒/5索 各+1翻",
+    doraUra: "裏ドラ", doraUraDesc: "立直和了時のみ計上",
+    doraNature: "ドラ性質", doraNatureDesc: "ドラは加翻のみ。単独では和了役にならない"
   }
 };
 
@@ -103,6 +199,10 @@ function tileNameZh(id) {
   if (id <= 26) return `${id - 17}索`;
   return ["东", "南", "西", "北", "中", "发", "白"][id - 27];
 }
+function tileNameLocalized(id) {
+  if (state.lang === "zh") return tileNameZh(id);
+  return tileLabel(id);
+}
 function tileHtml(id, size = "") {
   const special = id === 33 ? " tile-haku" : "";
   return `<span class="mj-tile ${size}${special}"><img src="assets/tiles-photo/${tileAssetName(id)}" alt="${tileLabel(id)}"></span>`;
@@ -110,7 +210,54 @@ function tileHtml(id, size = "") {
 function countTiles(tiles) { const c = new Array(34).fill(0); for (const t of tiles) c[t] += 1; return c; }
 function isTerminalOrHonor(t) { return t >= 27 || t % 9 === 0 || t % 9 === 8; }
 function sortHand() { if (state.autoSort) state.hand.sort((a, b) => a - b); }
-function renderRules() { el.rulesBody.innerHTML = RULES_46.map((r) => `<tr>${r.map((x) => `<td>${x}</td>`).join("")}</tr>`).join(""); }
+const RULE_NAME_EN = {
+  1: "Riichi", 2: "Ippatsu", 3: "Tanyao", 4: "Menzen Tsumo", 5: "Seat Wind Pung", 6: "Round Wind Pung", 7: "Dragon Pung", 8: "Pinfu", 9: "Iipeikou",
+  10: "Chankan", 11: "Rinshan Kaihou", 12: "Haitei/Houtei", 13: "Dora", 14: "Aka dora", 15: "Ura dora", 16: "Double Riichi", 17: "Sanshoku Dokou",
+  18: "Sankantsu", 19: "Toitoi", 20: "Sanankou", 21: "Shousangen", 22: "Honroutou", 23: "Chiitoitsu", 24: "Chanta", 25: "Ittsu", 26: "Sanshoku Doujun",
+  27: "Ryanpeikou", 28: "Junchan", 29: "Honitsu", 30: "Chinitsu", 31: "Tenhou", 32: "Chiihou", 33: "Daisangen", 34: "Suuankou", 35: "Tsuisou",
+  36: "Ryuuiisou", 37: "Chinroutou", 38: "Kokushi Musou", 39: "Shousuushii", 40: "Suukantsu", 41: "Chuuren Poutou", 42: "Suuankou Tanki",
+  43: "Kokushi 13-sided", 44: "Pure Chuuren", 45: "Daisuushii", 46: "Dai Shichisei"
+};
+const RULE_NAME_JA = {
+  1: "立直", 2: "一発", 3: "断么九", 4: "門前清自摸和", 5: "自風牌刻子", 6: "場風牌刻子", 7: "三元牌刻子", 8: "平和", 9: "一盃口",
+  10: "槍槓", 11: "嶺上開花", 12: "海底摸月/河底撈魚", 13: "ドラ", 14: "赤ドラ", 15: "裏ドラ", 16: "ダブル立直", 17: "三色同刻", 18: "三槓子",
+  19: "対々和", 20: "三暗刻", 21: "小三元", 22: "混老頭", 23: "七対子", 24: "混全帯么九", 25: "一気通貫", 26: "三色同順", 27: "二盃口",
+  28: "純全帯么九", 29: "混一色", 30: "清一色", 31: "天和", 32: "地和", 33: "大三元", 34: "四暗刻", 35: "字一色", 36: "緑一色",
+  37: "清老頭", 38: "国士無双", 39: "小四喜", 40: "四槓子", 41: "九蓮宝燈", 42: "四暗刻単騎", 43: "国士無双十三面", 44: "純正九蓮宝燈", 45: "大四喜", 46: "大七星"
+};
+const RULE_FIELD_EN = {
+  "门前清限定": "Closed only", "可鸣牌": "Open allowed", "不算役": "Not yaku", "鸣牌减1番": "Open hand -1 han", "庄家限定": "Dealer only",
+  "闲家限定": "Non-dealer only", "无发也可": "Hatsu not required", "双倍役满": "Double yakuman", "7个字牌对子": "7 honor pairs",
+  "立直后一巡且无人鸣牌": "Within one turn after riichi, no calls by others", "只能加番，不能解锁和牌": "Adds han only, cannot unlock a win"
+};
+const RULE_FIELD_JA = {
+  "门前清限定": "門前限定", "可鸣牌": "鳴き可", "不算役": "役ではない", "鸣牌减1番": "鳴くと-1翻", "庄家限定": "親限定",
+  "闲家限定": "子限定", "无发也可": "發なしでも可", "双倍役满": "ダブル役満", "7个字牌对子": "字牌7対子",
+  "立直后一巡且无人鸣牌": "立直後一巡以内かつ他家鳴きなし", "只能加番，不能解锁和牌": "加翻のみ。和了役にはならない"
+};
+function localizeRuleField(v) {
+  if (state.lang === "en") return RULE_FIELD_EN[v] || v;
+  if (state.lang === "ja") return RULE_FIELD_JA[v] || v;
+  return v;
+}
+function localizeRuleName(id, fallback) {
+  if (state.lang === "en") return RULE_NAME_EN[id] || fallback;
+  if (state.lang === "ja") return RULE_NAME_JA[id] || fallback;
+  return fallback;
+}
+function renderRules() {
+  el.rulesBody.innerHTML = RULES_46.map((r) => {
+    const [id, name, han, openRule, specialRule] = r;
+    const row = [
+      id,
+      localizeRuleName(id, name),
+      han,
+      localizeRuleField(openRule),
+      localizeRuleField(specialRule)
+    ];
+    return `<tr>${row.map((x) => `<td>${x}</td>`).join("")}</tr>`;
+  }).join("");
+}
 
 function handToCompact(tiles) {
   const suits = [[], [], [], []];
@@ -242,7 +389,6 @@ function parseTextToState(text) {
     else if (key === "haitei") draft.haitei = val === "1" || val.toLowerCase() === "true";
     else if (key === "houtei") draft.houtei = val === "1" || val.toLowerCase() === "true";
   }
-  normalizeWinEventFlags(draft);
   if (draft.hand.length > 14) throw new Error("手牌超过14张");
   if (countTiles(draft.hand).some((x) => x > 4)) throw new Error("同牌超过4张");
   if (draft.doraIndicators.some((x) => x < 0 || x > 33) || draft.uraIndicators.some((x) => x < 0 || x > 33)) throw new Error("宝牌指示牌非法");
@@ -365,12 +511,12 @@ function calcBasePoints(han, fu, yakumanTimes) {
 }
 
 function getLimitName(han, yakumanTimes, base) {
-  if (yakumanTimes > 0) return yakumanTimes >= 2 ? "双倍役满" : "役满";
-  if (han >= 13) return "役满";
-  if (han >= 11) return "三倍满";
-  if (han >= 8) return "倍满";
-  if (han >= 6) return "跳满";
-  if (han >= 5 || base >= 2000) return "满贯";
+  if (yakumanTimes > 0) return yakumanTimes >= 2 ? `Double ${tr("limitYakuman")}` : tr("limitYakuman");
+  if (han >= 13) return tr("limitYakuman");
+  if (han >= 11) return tr("limitSanbaiman");
+  if (han >= 8) return tr("limitBaiman");
+  if (han >= 6) return tr("limitHaneman");
+  if (han >= 5 || base >= 2000) return tr("limitMangan");
   return "";
 }
 
@@ -378,16 +524,16 @@ function calcPointBreakdown(base, winType, isDealer) {
   const ceil100 = (x) => Math.ceil(x / 100) * 100;
   if (winType === "ron") {
     const total = isDealer ? ceil100(base * 6) : ceil100(base * 4);
-    return { total, label: isDealer ? `庄家荣和 ${total}` : `闲家荣和 ${total}` };
+    return { total, label: `${isDealer ? tr("ptRonDealer") : tr("ptRonNonDealer")} ${total}` };
   }
   if (isDealer) {
     const each = ceil100(base * 2);
-    return { total: each * 3, label: `庄家自摸 ${each} all (合计${each * 3})` };
+    return { total: each * 3, label: `${tr("ptTsumoDealer")} ${each} all (${tr("totalPrefix")}${each * 3})` };
   }
   const fromDealer = ceil100(base * 2);
   const fromOthers = ceil100(base);
   const total = fromDealer + fromOthers * 2;
-  return { total, label: `闲家自摸 ${fromDealer}/${fromOthers} (合计${total})` };
+  return { total, label: `${tr("ptTsumoNonDealer")} ${fromDealer}/${fromOthers} (${tr("totalPrefix")}${total})` };
 }
 
 function evaluateHandWin(tiles, winTileOverride = null, winTypeOverride = null) {
@@ -493,12 +639,12 @@ function claimLevel(delta) {
   return tr("levelNeutral");
 }
 function claimReason(row) {
-  if (row.best.action === "pass") return "鸣牌提升有限，建议先观察。";
-  if (row.best.action === "chi") return "可加速顺子成型，提升和牌速度。";
-  if (row.best.action === "pong") return "可固定刻子结构，路线更直接。";
-  if (row.best.action === "kong") return "可扩展打点潜力，但注意风险。";
-  if (row.best.action === "ron") return "当前可直接荣和。";
-  return "建议保持当前形。";
+  if (row.best.action === "pass") return state.lang === "en" ? "Limited gain from calling, observe first." : state.lang === "ja" ? "鳴きの利得が小さいため見送り。" : "鸣牌提升有限，建议先观察。";
+  if (row.best.action === "chi") return state.lang === "en" ? "Can speed up sequence shaping." : state.lang === "ja" ? "順子進行を加速できます。" : "可加速顺子成型，提升和牌速度。";
+  if (row.best.action === "pong") return state.lang === "en" ? "Can lock triplet structure quickly." : state.lang === "ja" ? "刻子構成を固定して進行。" : "可固定刻子结构，路线更直接。";
+  if (row.best.action === "kong") return state.lang === "en" ? "Can increase value potential, but riskier." : state.lang === "ja" ? "打点期待は上がるがリスク増。" : "可扩展打点潜力，但注意风险。";
+  if (row.best.action === "ron") return state.lang === "en" ? "Can win by ron right now." : state.lang === "ja" ? "現在ロン和了可能。" : "当前可直接荣和。";
+  return state.lang === "en" ? "Keep current shape." : state.lang === "ja" ? "現形維持が無難。" : "建议保持当前形。";
 }
 function claimPatternHtml(row) {
   const pattern = (row.best && row.best.pattern && row.best.pattern.length) ? row.best.pattern : [row.tile];
@@ -509,7 +655,7 @@ function formatResultSummary(r) {
   const yakuText = r.yaku && r.yaku.length ? r.yaku.map((y) => `${y.name}(${y.han})`).join(", ") : tr("none");
   const limit = r.limitName ? `, ${r.limitName}` : "";
   return {
-    scoreLine: `${r.point.total}（${r.han}番${r.fu}符${limit}） ${r.point.label}`,
+    scoreLine: `${r.point.total} (${r.han}${tr("hanSuffix")}${r.fu}${tr("fuSuffix")}${limit}) ${r.point.label}`,
     yakuLine: `${tr("yakuDetail")}: ${yakuText}`
   };
 }
@@ -523,7 +669,7 @@ function buildTenpaiValueRows(hand13, waits) {
       const ronInfo = formatResultSummary(ron);
       const tsumoInfo = formatResultSummary(tsumo);
       out.push(`<div class="tenpai-row">
-        <div class="tenpai-head">${tileHtml(w, "small")} ${tileNameZh(w)}</div>
+        <div class="tenpai-head">${tileHtml(w, "small")} ${tileNameLocalized(w)}</div>
         <div class="tenpai-line">${tr("ronLabel")}: ${ronInfo.scoreLine}</div>
         <div class="tenpai-line">${ronInfo.yakuLine}</div>
         <div class="tenpai-line">${tr("tsumoLabel")}: ${tsumoInfo.scoreLine}</div>
@@ -531,7 +677,7 @@ function buildTenpaiValueRows(hand13, waits) {
       </div>`);
     } catch (_) {
       out.push(`<div class="tenpai-row">
-        <div class="tenpai-head">${tileHtml(w, "small")} ${tileNameZh(w)}</div>
+        <div class="tenpai-head">${tileHtml(w, "small")} ${tileNameLocalized(w)}</div>
         <div class="tenpai-line">${tr("ronLabel")}: -</div>
         <div class="tenpai-line">${tr("tsumoLabel")}: -</div>
       </div>`);
@@ -566,32 +712,32 @@ function renderReferenceTables() {
 
   buildTable(
     "refLimitTable",
-    [tr("colRange"), tr("colLimit"), `闲家${tr("ronLabel")}`, `闲家${tr("tsumoLabel")}(庄/闲)`, `庄家${tr("ronLabel")}`, `庄家${tr("tsumoLabel")}(all)`],
+    [tr("colRange"), tr("colLimit"), tr("refNonDealerRon"), tr("refNonDealerTsumo"), tr("refDealerRon"), tr("refDealerTsumo")],
     [
-      ["5番", tr("limitMangan"), "8000", "4000/2000", "12000", "4000 all"],
-      ["6-7番", tr("limitHaneman"), "12000", "6000/3000", "18000", "6000 all"],
-      ["8-10番", tr("limitBaiman"), "16000", "8000/4000", "24000", "8000 all"],
-      ["11-12番", tr("limitSanbaiman"), "24000", "12000/6000", "36000", "12000 all"],
-      ["13番及以上", tr("limitYakuman"), "32000", "16000/8000", "48000", "16000 all"]
+      [tr("refHan5"), tr("limitMangan"), "8000", "4000/2000", "12000", "4000 all"],
+      [tr("refHan67"), tr("limitHaneman"), "12000", "6000/3000", "18000", "6000 all"],
+      [tr("refHan810"), tr("limitBaiman"), "16000", "8000/4000", "24000", "8000 all"],
+      [tr("refHan1112"), tr("limitSanbaiman"), "24000", "12000/6000", "36000", "12000 all"],
+      [tr("refHan13p"), tr("limitYakuman"), "32000", "16000/8000", "48000", "16000 all"]
     ]
   );
 
   buildTable(
     "refFuTable",
-    [tr("colRule"), "符值", tr("colDesc")],
+    [tr("colRule"), tr("fuValue"), tr("colDesc")],
     [
-      ["底符", "+20", "固定底符"],
-      ["门前荣和", "+10", "门清状态下荣和"],
-      ["自摸", "+2", "自摸和牌"],
-      ["雀头：自风/场风/三元", "+2", "自风牌、场风牌、中发白对子"],
-      ["雀头：连风", "+4", "自风与场风相同"],
-      ["明刻(中张/幺九)", "+2/+4", "2-8数牌 / 1-9与字牌"],
-      ["暗刻(中张/幺九)", "+4/+8", "2-8数牌 / 1-9与字牌"],
-      ["明杠(中张/幺九)", "+8/+16", "2-8数牌 / 1-9与字牌"],
-      ["暗杠(中张/幺九)", "+16/+32", "2-8数牌 / 1-9与字牌"],
-      ["听牌形：单骑/边张/嵌张", "+2", "任一成立则加符"],
-      ["符数进位", "向上取整到10", "例如32符->40符"],
-      ["特例", "固定符", "平和自摸20符；七对子25符；副露不足30符按30符"]
+      [tr("fuBase"), "+20", tr("fuBaseDesc")],
+      [tr("fuClosedRon"), "+10", tr("fuClosedRonDesc")],
+      [tr("fuTsumo"), "+2", tr("fuTsumoDesc")],
+      [tr("fuPairYakuhai"), "+2", tr("fuPairYakuhaiDesc")],
+      [tr("fuPairDoubleWind"), "+4", tr("fuPairDoubleWindDesc")],
+      [tr("fuTripletOpen"), "+2/+4", tr("fuTripletOpenDesc")],
+      [tr("fuTripletClosed"), "+4/+8", tr("fuTripletClosedDesc")],
+      [tr("fuKongOpen"), "+8/+16", tr("fuKongOpenDesc")],
+      [tr("fuKongClosed"), "+16/+32", tr("fuKongClosedDesc")],
+      [tr("fuWaitShape"), "+2", tr("fuWaitShapeDesc")],
+      [tr("fuRoundUp"), tr("fuRoundUpVal"), tr("fuRoundUpDesc")],
+      [tr("fuSpecial"), tr("fuSpecialVal"), tr("fuSpecialDesc")]
     ]
   );
 
@@ -599,13 +745,13 @@ function renderReferenceTables() {
     "refDoraTable",
     [tr("colRule"), tr("colDesc")],
     [
-      ["宝牌定义", "宝牌指示牌的下一张为宝牌（顺序循环）"],
-      ["数牌循环", "1-9循环（9后回1）"],
-      ["风牌循环", "东→南→西→北→东"],
-      ["三元牌循环", "中→发→白→中"],
-      ["赤宝牌", "赤5万/赤5筒/赤5索，各+1番"],
-      ["里宝牌", "仅立直和牌时计入"],
-      ["宝牌性质", "宝牌只加番，不能单独作为和牌役"]
+      [tr("doraDef"), tr("doraDefDesc")],
+      [tr("doraCycleNum"), tr("doraCycleNumDesc")],
+      [tr("doraCycleWind"), tr("doraCycleWindDesc")],
+      [tr("doraCycleDragon"), tr("doraCycleDragonDesc")],
+      [tr("doraAka"), tr("doraAkaDesc")],
+      [tr("doraUra"), tr("doraUraDesc")],
+      [tr("doraNature"), tr("doraNatureDesc")]
     ]
   );
 }
@@ -631,7 +777,7 @@ function renderResult() {
     const r = routed.result;
     if (routed.ok) {
       resultLines.push(`<div class="result-title">${tr("winReady")}</div>`);
-      const hanFuText = `${r.han}番 ${r.fu}符${r.limitName ? ` (${r.limitName})` : ""}`;
+      const hanFuText = `${r.han}${tr("hanSuffix")} ${r.fu}${tr("fuSuffix")}${r.limitName ? ` (${r.limitName})` : ""}`;
       resultLines.push(`<div class="result-line">${tr("hanFu")}: ${hanFuText}</div>`);
       resultLines.push(`<div class="result-line">${tr("points")}: ${r.point.total}</div>`);
       resultLines.push(`<div class="result-line">${r.point.label}</div>`);
@@ -661,7 +807,7 @@ function renderResult() {
       if (rows && rows.length) adviceLines.push(rows.join(""));
       else {
         // Never fall back to '-' for waits branch.
-        const compact = waits.map((w) => `<div class="result-line">${tileHtml(w, "small")} ${tileNameZh(w)}</div>`).join("");
+        const compact = waits.map((w) => `<div class="result-line">${tileHtml(w, "small")} ${tileNameLocalized(w)}</div>`).join("");
         adviceLines.push(compact);
       }
     } else {
@@ -670,18 +816,22 @@ function renderResult() {
         const rows = adv13.claimTop.slice(0, 5).map((x) => {
           const level = claimLevel(x.callDelta || 0);
           return `<div class="claim-advice-row">
-            <div class="claim-advice-main">${tileHtml(x.tile, "small")} <span class="claim-name">${tileNameZh(x.tile)}</span> | ${claimPatternHtml(x)} | ${claimActionLabel(x.best.action)} | <span class="claim-level">${level}</span></div>
+            <div class="claim-advice-main">${tileHtml(x.tile, "small")} <span class="claim-name">${tileNameLocalized(x.tile)}</span> | ${claimPatternHtml(x)} | ${claimActionLabel(x.best.action)} | <span class="claim-level">${level}</span></div>
             <div class="claim-advice-sub">${claimReason(x)}</div>
           </div>`;
         }).join("");
         adviceLines.push(rows);
       } else {
-        adviceLines.push(`<div class="result-line">当前无可鸣牌建议（13张阶段仅显示吃/碰/杠）。</div>`);
+        adviceLines.push(`<div class="result-line">${tr("noClaimAdvice13")}</div>`);
       }
     }
   } else {
     resultLines.push(`<div class="result-title">${tr("notWin")}</div><div class="result-line">hand tiles: ${hand.length} (need 13 or 14)</div>`);
     adviceLines.push(`<div class="result-line">-</div>`);
+  }
+  if (hand.length) {
+    resultLines.push(`<div class="result-line result-hand-title">${tr("currentHandView")}:</div>`);
+    resultLines.push(`<div class="result-hand-tiles">${hand.map((t) => tileHtml(t, "tiny")).join("")}</div>`);
   }
   resultLines.push(`<div class="tags"><span class="tag">dora:${state.doraIndicators.length}</span><span class="tag">ura:${state.uraIndicators.length}</span><span class="tag">${state.winType}</span><span class="tag">${state.dealer ? "dealer" : "non-dealer"}</span><span class="tag">seat ${state.seatWind}</span><span class="tag">round ${state.roundWind}</span></div>`);
   el.result.innerHTML = resultLines.join(""); el.advice.innerHTML = adviceLines.join("");
@@ -690,16 +840,48 @@ function renderResult() {
 function applyTheme() { document.body.setAttribute("data-theme", state.theme === "dark" ? "dark" : "regular"); }
 function applyLanguage() {
   const set = (id, key) => { const n = document.getElementById(id); if (n) n.textContent = tr(key); };
+  document.body.setAttribute("data-lang", state.lang);
   set("pageTitle", "pageTitle"); set("subText", "sub"); set("inputTitle", "inputTitle"); set("targetHand", "targetHand"); set("targetDora", "targetDora"); set("targetUra", "targetUra"); set("targetWin", "targetWin");
   set("autoSortLabel", "autoSort"); set("winTypeLabel", "winType"); set("seatLabel", "seat"); set("roundLabel", "round"); set("dealerLabel", "dealer"); set("riichiLabel", "riichi"); set("ippatsuLabel", "ippatsu"); set("doubleRiichiLabel", "doubleRiichi");
   set("akaLabel", "akaLabel"); set("paletteTitle", "palette"); set("handTitle", "handTitle"); set("clearHandBtn", "clearHand"); set("clearDoraBtn", "clearDora"); set("clearUraBtn", "clearUra");
   set("copyTextBtn", "copyText"); set("applyTextBtn", "applyText"); set("resultHeader", "resultHeader"); set("doraHeader", "doraHeader"); set("rulesTitle", "rulesTitle"); set("langLabel", "lang"); set("themeLabel", "theme"); set("clockLabel", "clock");
   set("specialWinLabel", "specialWin"); set("chankanLabel", "chankan"); set("rinshanLabel", "rinshan"); set("haiteiLabel", "haitei"); set("houteiLabel", "houtei");
   set("referenceTableTitle", "refTableTitle"); set("refNonDealerTitle", "refNonDealer"); set("refDealerTitle", "refDealer"); set("refLimitTitle", "refLimit"); set("refFuTitle", "refFu"); set("refDoraTitle", "refDora");
-  const th = document.getElementById("textHeader"); if (th) th.textContent = state.lang === "en" ? "Text Input" : state.lang === "ja" ? "テキスト入力" : "文本输入";
-  const ah = document.getElementById("adviceHeader"); if (ah) ah.textContent = state.lang === "en" ? "Discard Advice" : state.lang === "ja" ? "打牌提案" : "出牌建议";
+  const th = document.getElementById("textHeader"); if (th) th.textContent = tr("textHeader");
+  const ah = document.getElementById("adviceHeader"); if (ah) ah.textContent = tr("adviceHeader");
+  const sbNavBtn = document.getElementById("scoreboardBtn"); if (sbNavBtn) sbNavBtn.textContent = tr("navScoreboard");
+  if (el.winType && el.winType.options.length >= 2) {
+    el.winType.options[0].text = tr("winTypeRon");
+    el.winType.options[1].text = tr("winTypeTsumo");
+  }
+  const fillWindOptions = (sel) => {
+    if (!sel || sel.options.length < 4) return;
+    sel.options[0].text = tr("windE");
+    sel.options[1].text = tr("windS");
+    sel.options[2].text = tr("windW");
+    sel.options[3].text = tr("windN");
+  };
+  fillWindOptions(el.seatWind);
+  fillWindOptions(el.roundWind);
+  const aka5mLabel = document.getElementById("aka5mLabel"); if (aka5mLabel) aka5mLabel.textContent = tr("aka5m");
+  const aka5pLabel = document.getElementById("aka5pLabel"); if (aka5pLabel) aka5pLabel.textContent = tr("aka5p");
+  const aka5sLabel = document.getElementById("aka5sLabel"); if (aka5sLabel) aka5sLabel.textContent = tr("aka5s");
+  const ruleHeadCells = document.querySelectorAll("#rulesTitle + .table-wrap thead th");
+  if (ruleHeadCells.length >= 5) {
+    ruleHeadCells[0].textContent = tr("ruleIdx");
+    ruleHeadCells[1].textContent = tr("ruleName");
+    ruleHeadCells[2].textContent = tr("ruleHan");
+    ruleHeadCells[3].textContent = tr("ruleOpen");
+    ruleHeadCells[4].textContent = tr("ruleSpecial");
+  }
   el.backBtn.textContent = tr("back"); el.themeSelect.options[0].text = tr("themeRegular"); el.themeSelect.options[1].text = tr("themeDark");
+  if (el.langSelect && el.langSelect.options.length >= 3) {
+    el.langSelect.options[0].text = "中文";
+    el.langSelect.options[1].text = "English";
+    el.langSelect.options[2].text = "日本語";
+  }
   renderReferenceTables();
+  renderRules();
 }
 
 function updateClock() {
@@ -714,10 +896,6 @@ function reflectControls() {
   el.langSelect.value = state.lang; el.themeSelect.value = state.theme; el.autoSort.checked = state.autoSort; el.winType.value = state.winType; el.seatWind.value = state.seatWind; el.roundWind.value = state.roundWind;
   el.dealer.checked = state.dealer; el.riichi.checked = state.riichi; el.ippatsu.checked = state.ippatsu; el.doubleRiichi.checked = state.doubleRiichi;
   el.chankan.checked = state.chankan; el.rinshan.checked = state.rinshan; el.haitei.checked = state.haitei; el.houtei.checked = state.houtei;
-  el.chankan.disabled = state.winType !== "ron" || state.houtei;
-  el.houtei.disabled = state.winType !== "ron" || state.chankan;
-  el.rinshan.disabled = state.winType !== "tsumo" || state.haitei;
-  el.haitei.disabled = state.winType !== "tsumo" || state.rinshan;
   el.aka5m.checked = state.aka5m; el.aka5p.checked = state.aka5p; el.aka5s.checked = state.aka5s; el.clockToggle.checked = state.clockEnabled;
 }
 function recomputeAndRender() { sortHand(); renderHand(); syncTextFromState(); renderResult(); }
@@ -744,17 +922,17 @@ function bindEvents() {
   el.themeSelect.addEventListener("change", () => { state.theme = el.themeSelect.value; localStorage.setItem("mahjong_calc_theme", state.theme); applyTheme(); });
   el.clockToggle.addEventListener("change", () => { state.clockEnabled = el.clockToggle.checked; localStorage.setItem("mahjong_calc_clock", state.clockEnabled ? "1" : "0"); updateClock(); });
   el.autoSort.addEventListener("change", () => { state.autoSort = el.autoSort.checked; localStorage.setItem("mahjong_calc_auto_sort", state.autoSort ? "1" : "0"); syncFromState(); });
-  el.winType.addEventListener("change", () => { state.winType = el.winType.value; normalizeWinEventFlags(state); syncFromState(); });
+  el.winType.addEventListener("change", () => { state.winType = el.winType.value; syncFromState(); });
   el.seatWind.addEventListener("change", () => { state.seatWind = el.seatWind.value; syncFromState(); });
   el.roundWind.addEventListener("change", () => { state.roundWind = el.roundWind.value; syncFromState(); });
   el.dealer.addEventListener("change", () => { state.dealer = el.dealer.checked; syncFromState(); });
   el.riichi.addEventListener("change", () => { state.riichi = el.riichi.checked; syncFromState(); });
   el.ippatsu.addEventListener("change", () => { state.ippatsu = el.ippatsu.checked; syncFromState(); });
   el.doubleRiichi.addEventListener("change", () => { state.doubleRiichi = el.doubleRiichi.checked; syncFromState(); });
-  el.chankan.addEventListener("change", () => { state.chankan = el.chankan.checked; normalizeWinEventFlags(state); syncFromState(); });
-  el.rinshan.addEventListener("change", () => { state.rinshan = el.rinshan.checked; normalizeWinEventFlags(state); syncFromState(); });
-  el.haitei.addEventListener("change", () => { state.haitei = el.haitei.checked; normalizeWinEventFlags(state); syncFromState(); });
-  el.houtei.addEventListener("change", () => { state.houtei = el.houtei.checked; normalizeWinEventFlags(state); syncFromState(); });
+  el.chankan.addEventListener("change", () => { state.chankan = el.chankan.checked; syncFromState(); });
+  el.rinshan.addEventListener("change", () => { state.rinshan = el.rinshan.checked; syncFromState(); });
+  el.haitei.addEventListener("change", () => { state.haitei = el.haitei.checked; syncFromState(); });
+  el.houtei.addEventListener("change", () => { state.houtei = el.houtei.checked; syncFromState(); });
   el.aka5m.addEventListener("change", () => { state.aka5m = el.aka5m.checked; syncFromState(); });
   el.aka5p.addEventListener("change", () => { state.aka5p = el.aka5p.checked; syncFromState(); });
   el.aka5s.addEventListener("change", () => { state.aka5s = el.aka5s.checked; syncFromState(); });
