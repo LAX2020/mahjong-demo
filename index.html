@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mahjong Demo</title>
-  <link rel="stylesheet" href="style.css?v=20260307c" />
+  <link rel="stylesheet" href="style.css?v=20260308r" />
 </head>
 <body>
   <main class="container">
@@ -15,6 +15,7 @@
       <button id="newGameBtn">新开一局</button>
       <a id="calcNavBtn" class="nav-btn" href="calculator.html">算番算符</a>
       <span id="ruleInfo">规则: Basic</span>
+      <span id="roundInfo">东1局 0本场 供托0</span>
       <span id="wallInfo">牌墙: -</span>
       <span id="turnInfo">回合: -</span>
       <span class="topbar-spacer"></span>
@@ -60,6 +61,7 @@
         </div>
       </div>
       <div id="handActionsCol" class="hand-actions-col">
+        <section id="nextHandBar" class="actions next-hand-bar"></section>
         <section id="autoOps" class="auto-ops">
           <label class="auto-toggle">
             <input id="autoHuToggle" type="checkbox" checked />
@@ -68,6 +70,10 @@
           <label class="auto-toggle">
             <input id="autoTsumogiriToggle" type="checkbox" />
             <span id="autoTsumogiriLabel">自动摸切</span>
+          </label>
+          <label class="auto-toggle">
+            <input id="tobiEndToggle" type="checkbox" checked />
+            <span id="tobiEndLabel">击飞结束</span>
           </label>
         </section>
         <section id="actionBar" class="actions"></section>
@@ -80,12 +86,13 @@
       <section id="roundStatePanel" class="round-state-panel"></section>
       <h2 id="logTitle">日志</h2>
       <div id="log" class="log"></div>
+      <section id="riichiScoreboard" class="riichi-scoreboard"></section>
     </section>
   </main>
 
-  <script src="engine/riichi-engine.js?v=20260307c"></script>
-  <script src="engine/advice-engine.js?v=20260307c"></script>
-  <script src="engine/decision-engine.js?v=20260307c"></script>
-  <script src="app.js?v=20260307c"></script>
+  <script src="engine/riichi-engine.js?v=20260308a"></script>
+  <script src="engine/advice-engine.js?v=20260308a"></script>
+  <script src="engine/decision-engine.js?v=20260308a"></script>
+  <script src="app.js?v=20260308r"></script>
 </body>
 </html>

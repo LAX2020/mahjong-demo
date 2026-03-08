@@ -165,6 +165,7 @@
     var uraIndicators = options.uraIndicators || [];
     var riichi = !!options.riichi;
     var aka5m = !!options.aka5m, aka5p = !!options.aka5p, aka5s = !!options.aka5s;
+    var akaCountByTile = options.akaCountByTile || null;
 
     var doraTiles = doraIndicators.map(nextDora);
     var uraTiles = uraIndicators.map(nextDora);
@@ -172,9 +173,15 @@
     var uraCountRaw = uraTiles.reduce(function (a, d) { return a + tiles.filter(function (t) { return t === d; }).length; }, 0);
     var uraCount = riichi ? uraCountRaw : 0;
     var akaCount = 0;
-    if (aka5m) akaCount += tiles.filter(function (t) { return t === 4; }).length;
-    if (aka5p) akaCount += tiles.filter(function (t) { return t === 13; }).length;
-    if (aka5s) akaCount += tiles.filter(function (t) { return t === 22; }).length;
+    if (akaCountByTile) {
+      akaCount += (akaCountByTile[4] || 0);
+      akaCount += (akaCountByTile[13] || 0);
+      akaCount += (akaCountByTile[22] || 0);
+    } else {
+      if (aka5m) akaCount += tiles.filter(function (t) { return t === 4; }).length;
+      if (aka5p) akaCount += tiles.filter(function (t) { return t === 13; }).length;
+      if (aka5s) akaCount += tiles.filter(function (t) { return t === 22; }).length;
+    }
     return { doraCount: doraCount, uraCount: uraCount, akaCount: akaCount, total: doraCount + uraCount + akaCount };
   }
 
@@ -329,7 +336,8 @@
       riichi: !!state.riichi,
       aka5m: !!state.aka5m,
       aka5p: !!state.aka5p,
-      aka5s: !!state.aka5s
+      aka5s: !!state.aka5s,
+      akaCountByTile: state.akaCountByTile || null
     });
 
     var baseYakuHan = yaku.filter(function (x) { return !x.name.includes("宝牌") && !x.name.includes("ドラ"); })
@@ -364,7 +372,13 @@
     var winTile = input.winTile;
     var melds = input.melds || [];
     var riichi = !!input.riichi;
+    var dealer = !!input.dealer;
+    var seatWind = input.seatWind || "E";
+    var roundWind = input.roundWind || "E";
     var doraIndicators = input.doraIndicators || [];
+    var uraIndicators = input.uraIndicators || [];
+    var ippatsu = !!input.ippatsu;
+    var akaCountByTile = input.akaCountByTile || null;
 
     var hasOpen = melds.some(function (m) { return m.type === "chi" || m.type === "pong" || m.type === "kong_open"; });
     var isChiitoi = canChiitoitsu(handWithWin, melds.length);
@@ -375,7 +389,18 @@
     if (isKokushi) {
       var yk = ["Kokushi Musou"];
       if (riichi) yk.push("Riichi");
-      return { ok: true, han: 13, fu: 0, points: winType === "tsumo" ? 16000 : 32000, yaku: yk, winType: winType, winTile: winTile };
+      var yakumanPoint = calcPointBreakdown(8000, winType, dealer);
+      return {
+        ok: true,
+        han: 13,
+        fu: 0,
+        points: yakumanPoint.total,
+        point: yakumanPoint,
+        basePoints: 8000,
+        yaku: yk,
+        winType: winType,
+        winTile: winTile
+      };
     }
 
     var structure = isRegular ? findWinningStructure(handWithWin, melds.length) : null;
@@ -388,6 +413,7 @@
     function addYaku(name, h) { han += h; baseYakuHan += h; yaku.push(name); }
 
     if (riichi) addYaku("Riichi", 1);
+    if (riichi && ippatsu) addYaku("Ippatsu", 1);
     if (!hasOpen && winType === "tsumo") addYaku("Menzen Tsumo", 1);
 
     var allTiles = handWithWin.slice();
@@ -397,6 +423,9 @@
     if (allNoTH) addYaku("Tanyao", 1);
 
     var counts = countTiles(allTiles);
+    var wm = { E: 27, S: 28, W: 29, N: 30 };
+    if (counts[wm[seatWind]] >= 3) addYaku("Yakuhai Seat Wind", 1);
+    if (counts[wm[roundWind]] >= 3) addYaku("Yakuhai Round Wind", 1);
     if (counts[31] >= 3) addYaku("Yakuhai Chun", 1);
     if (counts[32] >= 3) addYaku("Yakuhai Hatsu", 1);
     if (counts[33] >= 3) addYaku("Yakuhai Haku", 1);
@@ -409,7 +438,7 @@
       }));
       var onlySeq = allMelds.every(function (m) { return m.type === "sequence"; });
       var pairTile = structure.pair;
-      var pairValue = pairTile >= 31 && pairTile <= 33;
+      var pairValue = (pairTile >= 31 && pairTile <= 33) || pairTile === wm[seatWind] || pairTile === wm[roundWind];
       if (!hasOpen && onlySeq && !pairValue && !isTerminalOrHonor(pairTile)) addYaku("Pinfu", 1);
 
       if (allMelds.every(function (m) { return m.type === "triplet"; })) addYaku("Toitoi", 2);
@@ -459,26 +488,52 @@
     if (!isChiitoi) {
       var allM = structure.melds.concat(melds.map(function (m) { return { type: m.type === "chi" ? "sequence" : "triplet", tiles: m.tiles }; }));
       var pairT = structure.pair;
-      var pairVal = pairT >= 31 && pairT <= 33;
+      var pairFu = 0;
       if (!hasOpen && winType === "ron") fu += 10;
-      if (pairVal) fu += 2;
+      if (pairT >= 31 && pairT <= 33) pairFu += 2;
+      if (pairT === wm[seatWind]) pairFu += 2;
+      if (pairT === wm[roundWind]) pairFu += 2;
+      fu += pairFu;
       allM.forEach(function (m) {
         if (m.type !== "triplet") return;
         fu += isTerminalOrHonor(m.tiles[0]) ? 8 : 4;
       });
       fu = Math.ceil(fu / 10) * 10;
+      // Open hand special case: if calculated fu is below 30, round up to 30 fu.
+      if (hasOpen && fu < 30) fu = 30;
     }
 
-    var dora = 0;
-    if (doraIndicators.length > 0) {
-      var doraTile = nextDora(doraIndicators[0]);
-      dora = allTiles.filter(function (t) { return t === doraTile; }).length;
-    }
+    var dora = doraIndicators
+      .map(nextDora)
+      .reduce(function (s, d) { return s + allTiles.filter(function (t) { return t === d; }).length; }, 0);
+    var ura = riichi
+      ? uraIndicators.map(nextDora).reduce(function (s, d) { return s + allTiles.filter(function (t) { return t === d; }).length; }, 0)
+      : 0;
+    var aka = akaCountByTile ? ((akaCountByTile[4] || 0) + (akaCountByTile[13] || 0) + (akaCountByTile[22] || 0)) : 0;
     if (dora > 0) { han += dora; yaku.push("Dora x" + dora); }
+    if (ura > 0) { han += ura; yaku.push("Ura Dora x" + ura); }
+    if (aka > 0) { han += aka; yaku.push("Aka Dora x" + aka); }
 
     var basePoints = calcBasePoints(han, fu, 0);
-    var points = winType === "tsumo" ? ceil100(basePoints * 2) : ceil100(basePoints * 4);
-    return { ok: true, han: han, fu: fu, points: points, yaku: yaku, winType: winType, winTile: winTile };
+    var point = calcPointBreakdown(basePoints, winType, dealer);
+    var limitName = "";
+    if (han >= 13) limitName = "役满";
+    else if (han >= 11) limitName = "三倍满";
+    else if (han >= 8) limitName = "倍满";
+    else if (han >= 6) limitName = "跳满";
+    else if (han >= 5 || basePoints >= 2000) limitName = "满贯";
+    return {
+      ok: true,
+      han: han,
+      fu: fu,
+      points: point.total,
+      point: point,
+      basePoints: basePoints,
+      limitName: limitName,
+      yaku: yaku,
+      winType: winType,
+      winTile: winTile
+    };
   }
 
   function canHuByRule(tiles, meldCount) {

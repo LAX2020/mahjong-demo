@@ -30,6 +30,88 @@
     return n;
   }
 
+  function suitPos(id) {
+    if (id < 0 || id >= 27) return { suit: -1, pos: -1 };
+    var suit = Math.floor(id / 9);
+    return { suit: suit, pos: id - suit * 9 };
+  }
+
+  function suitNeighborCount(counts, id, delta) {
+    var sp = suitPos(id);
+    if (sp.suit < 0) return 0;
+    var p = sp.pos + delta;
+    if (p < 0 || p > 8) return 0;
+    return counts[sp.suit * 9 + p] || 0;
+  }
+
+  function pairCount(counts) {
+    var n = 0;
+    for (var i = 0; i < 34; i += 1) if ((counts[i] || 0) >= 2) n += 1;
+    return n;
+  }
+
+  function isMiddleCoreTile(id, counts) {
+    if (id < 0 || id >= 27) return false;
+    var r = id % 9;
+    if (r < 3 || r > 5) return false; // focus 4/5/6
+    var left = suitNeighborCount(counts, id, -1);
+    var right = suitNeighborCount(counts, id, 1);
+    var near2 = suitNeighborCount(counts, id, -2);
+    var near2r = suitNeighborCount(counts, id, 2);
+    return left > 0 || right > 0 || near2 > 0 || near2r > 0;
+  }
+
+  function weakPairScore(discard, originCounts, doraTiles) {
+    if ((originCounts[discard] || 0) < 2) return -999;
+    var isDora = doraTiles.indexOf(discard) >= 0;
+    if (discard >= 27) return isDora ? 10 : 95;
+    var r = discard % 9;
+    if (r === 0 || r === 8) return isDora ? 16 : 82; // 1/9
+    if (r === 1 || r === 7) return isDora ? 12 : 66; // 2/8
+    if (r === 2 || r === 6) return isDora ? 8 : 48;  // 3/7
+    if (r === 3 || r === 5) return isDora ? 4 : 28;  // 4/6
+    return isDora ? -8 : 18; // 5 center
+  }
+
+  function weakSingletonScore(discard, originCounts) {
+    if ((originCounts[discard] || 0) !== 1) return -999;
+    if (discard >= 27) return 92;
+    var r = discard % 9;
+    var nei = getNeighborCount(originCounts, discard);
+    var base = 0;
+    if (r === 0 || r === 8) base = 80;       // 1/9
+    else if (r === 1 || r === 7) base = 62;  // 2/8
+    else base = 30;
+    if (nei === 0) return base + 12;
+    return base - 10;
+  }
+
+  function isCompositeCoreTile(id, counts) {
+    if (id < 0 || id >= 27) return false;
+    var left1 = suitNeighborCount(counts, id, -1);
+    var right1 = suitNeighborCount(counts, id, 1);
+    var left2 = suitNeighborCount(counts, id, -2);
+    var right2 = suitNeighborCount(counts, id, 2);
+    // center in 123/234... or joint in 34+2/5-like composite.
+    if (left1 > 0 && right1 > 0) return true;
+    if ((left1 > 0 || right1 > 0) && (left2 > 0 || right2 > 0)) return true;
+    return false;
+  }
+
+  function weakGapShapeScore(discard, originCounts) {
+    if (discard < 0 || discard >= 27) return -999;
+    if ((originCounts[discard] || 0) !== 1) return -999;
+    var adj = (suitNeighborCount(originCounts, discard, -1) > 0 ? 1 : 0) +
+      (suitNeighborCount(originCounts, discard, 1) > 0 ? 1 : 0);
+    var gap = (suitNeighborCount(originCounts, discard, -2) > 0 ? 1 : 0) +
+      (suitNeighborCount(originCounts, discard, 2) > 0 ? 1 : 0);
+    if (adj > 0 || gap === 0) return -999;
+    var r = discard % 9;
+    if (r === 0 || r === 8) return 86; // 1/9 with only gap connection
+    if (r === 1 || r === 7) return 72; // 2/8 with only gap connection
+    return 44; // center-only gap shape
+  }
+
   function getDiscardRoleCost(originCounts, discard) {
     var c = originCounts[discard];
     var cost = 0;
@@ -125,17 +207,22 @@
     return 66;
   }
 
-  function getBlockProtectionPenalty(discard, originCounts, mode) {
+  function getBlockProtectionPenalty(discard, originCounts, mode, pairN) {
     var c = originCounts[discard] || 0;
     if (c >= 3) return 90; // don't break triplets by default
-    if (c === 2) return 46; // pair protection
+    if (c === 2) {
+      // pair protection decays after 3+ pairs to encourage weak-pair breaks.
+      if (pairN >= 4) return 14;
+      if (pairN === 3) return 24;
+      return 46;
+    }
     if (discard >= 27 || c !== 1) return 0;
 
     var nei = getNeighborCount(originCounts, discard);
-    var left1 = discard - 1 >= 0 ? originCounts[discard - 1] : 0;
-    var right1 = discard + 1 <= 33 ? originCounts[discard + 1] : 0;
-    var left2 = discard - 2 >= 0 ? originCounts[discard - 2] : 0;
-    var right2 = discard + 2 <= 33 ? originCounts[discard + 2] : 0;
+    var left1 = suitNeighborCount(originCounts, discard, -1);
+    var right1 = suitNeighborCount(originCounts, discard, 1);
+    var left2 = suitNeighborCount(originCounts, discard, -2);
+    var right2 = suitNeighborCount(originCounts, discard, 2);
     var gapPartners = (left2 > 0 ? 1 : 0) + (right2 > 0 ? 1 : 0);
 
     // strong protection for tiles inside complete/near-complete shapes.
@@ -143,7 +230,12 @@
     if ((left2 > 0 && left1 > 0) || (right1 > 0 && right2 > 0)) return 44;
     // Kanchan-like gap taatsu (e.g. 24, 68) has clear improvement value; don't treat as pure orphan.
     if (gapPartners >= 2) return mode === "basic" ? 34 : 38;
-    if (gapPartners === 1) return mode === "basic" ? 26 : 30;
+    if (gapPartners === 1) {
+      var r = discard % 9;
+      if (r === 0 || r === 8) return mode === "basic" ? 8 : 10;
+      if (r === 1 || r === 7) return mode === "basic" ? 14 : 16;
+      return mode === "basic" ? 26 : 30;
+    }
     if (nei >= 2) return 28;
     if (nei === 1) return mode === "basic" ? 10 : 14;
     return 0;
@@ -382,7 +474,20 @@
     var honorAdj = honorSingletonAdjust(discard, discardCount, heuristic, mode, routePlan, originCounts);
     var routeAdj = routeDiscardAdjust(routePlan, discard, discardCount, heuristic);
     var orphanPriority = getOrphanPriorityScore(discard, originCounts, heuristic, mode, routePlan);
-    var blockPenalty = getBlockProtectionPenalty(discard, originCounts, mode);
+    var pairN = pairCount(originCounts);
+    var blockPenalty = getBlockProtectionPenalty(discard, originCounts, mode, pairN);
+    var wPair = weakPairScore(discard, originCounts, doraTiles);
+    var coreMiddle = isMiddleCoreTile(discard, originCounts);
+    var compositeCore = isCompositeCoreTile(discard, originCounts);
+    var weakSingle = weakSingletonScore(discard, originCounts);
+    var weakGap = weakGapShapeScore(discard, originCounts);
+    var pairRouteBias = 0;
+    if (pairN >= 3 && discardCount >= 2) pairRouteBias += wPair * 0.42;
+    if (pairN >= 4 && discardCount >= 2) pairRouteBias += wPair * 0.33;
+    var weakSingleBias = weakSingle > 0 ? weakSingle * (pairN >= 3 ? 0.12 : 0.08) : 0;
+    var weakGapBias = weakGap > 0 ? weakGap * (pairN >= 3 ? 0.2 : 0.14) : 0;
+    var corePenaltySpeed = (coreMiddle ? 18 : 0) + (compositeCore ? 42 : 0);
+    var corePenaltyValue = (coreMiddle ? 12 : 0) + (compositeCore ? 30 : 0);
 
     // Common efficiency layer for all modes:
     // prioritize clearing isolated tiles (especially lone honors), avoid breaking useful shapes.
@@ -393,7 +498,11 @@
       honorAdj.speed +
       routeAdj.speed +
       orphanPriority * (mode === "basic" ? 1.05 : 0.78) -
-      blockPenalty * (mode === "basic" ? 0.58 : 0.7);
+      blockPenalty * (mode === "basic" ? 0.58 : 0.7) +
+      pairRouteBias -
+      corePenaltySpeed +
+      weakSingleBias +
+      weakGapBias;
 
     valueScore =
       valueScore +
@@ -403,7 +512,11 @@
       routeAdj.value +
       routePlan.score * 0.12 +
       orphanPriority * (mode === "basic" ? 0.35 : 0.28) -
-      blockPenalty * (mode === "basic" ? 0.28 : 0.42);
+      blockPenalty * (mode === "basic" ? 0.28 : 0.42) +
+      pairRouteBias * 0.7 -
+      corePenaltyValue +
+      weakSingleBias * 0.7 +
+      weakGapBias * 0.75;
 
     if (mode === "basic") {
       var isHonorSingle = isHonorSingleton;
@@ -437,6 +550,12 @@
       expectedPoint: Math.round(expectedPoint),
       speedScore: speedScore,
       valueScore: valueScore,
+      pairN: pairN,
+      weakPair: wPair,
+      weakSingle: weakSingle,
+      weakGap: weakGap,
+      coreMiddle: coreMiddle,
+      compositeCore: compositeCore,
       isHonorSingleton: isHonorSingleton,
       isSuitedOrphan: isSuitedOrphan,
       isDoraDiscard: isDoraDiscard,
@@ -486,6 +605,17 @@
       return 0;
     };
     var tieBreak = function (a, b) {
+      if (((a.pairN || 0) >= 3 || (b.pairN || 0) >= 3) && (a.weakPair || -999) !== (b.weakPair || -999)) {
+        return (b.weakPair || -999) - (a.weakPair || -999);
+      }
+      if (((a.pairN || 0) >= 3 || (b.pairN || 0) >= 3) && (a.weakSingle || -999) !== (b.weakSingle || -999)) {
+        return (b.weakSingle || -999) - (a.weakSingle || -999);
+      }
+      if (((a.pairN || 0) >= 3 || (b.pairN || 0) >= 3) && (a.weakGap || -999) !== (b.weakGap || -999)) {
+        return (b.weakGap || -999) - (a.weakGap || -999);
+      }
+      if ((a.compositeCore ? 1 : 0) !== (b.compositeCore ? 1 : 0)) return (a.compositeCore ? 1 : 0) - (b.compositeCore ? 1 : 0);
+      if ((a.coreMiddle ? 1 : 0) !== (b.coreMiddle ? 1 : 0)) return (a.coreMiddle ? 1 : 0) - (b.coreMiddle ? 1 : 0);
       if ((a.orphanPriority || 0) !== (b.orphanPriority || 0)) return (b.orphanPriority || 0) - (a.orphanPriority || 0);
       if ((a.blockPenalty || 0) !== (b.blockPenalty || 0)) return (a.blockPenalty || 0) - (b.blockPenalty || 0);
       if (tieRank(a) !== tieRank(b)) return tieRank(b) - tieRank(a);
