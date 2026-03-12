@@ -808,6 +808,12 @@ function syncAutoToggles() {
   if (el.tobiEndToggle) el.tobiEndToggle.checked = !!state.tobiEndEnabled;
 }
 
+function resetAutoPlayForNewHand() {
+  // Auto tsumogiri must always start disabled for each new hand.
+  state.autoTsumogiri = false;
+  syncAutoToggles();
+}
+
 function refreshPlayerNames() {
   if (!state.players || state.players.length === 0) return;
   state.players.forEach((p, i) => {
@@ -1778,6 +1784,7 @@ function rebuildPlayersForHand() {
 }
 
 function initGame() {
+  resetAutoPlayForNewHand();
   resetMatchState();
   rebuildPlayersForHand();
   setupRoundResources();
@@ -1816,6 +1823,7 @@ function initGame() {
 
 function startNextHand() {
   if (state.hanchanEnded) return;
+  resetAutoPlayForNewHand();
   state.hanchanEndReason = "";
   rebuildPlayersForHand();
   setupRoundResources();
