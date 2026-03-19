@@ -655,6 +655,54 @@ const I18N = {
   },
 };
 
+const YAKU_LABELS = {
+  Riichi: { zh: "立直", en: "Riichi", ja: "立直" },
+  Ippatsu: { zh: "一发", en: "Ippatsu", ja: "一発" },
+  "Menzen Tsumo": { zh: "门前清自摸和", en: "Menzen Tsumo", ja: "門前清自摸和" },
+  Tanyao: { zh: "断幺九", en: "Tanyao", ja: "断么九" },
+  "Yakuhai Seat Wind": { zh: "役牌: 自风", en: "Yakuhai: Seat Wind", ja: "役牌: 自風" },
+  "Yakuhai Round Wind": { zh: "役牌: 场风", en: "Yakuhai: Round Wind", ja: "役牌: 場風" },
+  "Yakuhai Chun": { zh: "役牌: 中", en: "Yakuhai: Chun", ja: "役牌: 中" },
+  "Yakuhai Hatsu": { zh: "役牌: 发", en: "Yakuhai: Hatsu", ja: "役牌: 發" },
+  "Yakuhai Haku": { zh: "役牌: 白", en: "Yakuhai: Haku", ja: "役牌: 白" },
+  Chiitoitsu: { zh: "七对子", en: "Chiitoitsu", ja: "七対子" },
+  Pinfu: { zh: "平和", en: "Pinfu", ja: "平和" },
+  Toitoi: { zh: "对对和", en: "Toitoi", ja: "対々和" },
+  Sanankou: { zh: "三暗刻", en: "Sanankou", ja: "三暗刻" },
+  Shousangen: { zh: "小三元", en: "Shousangen", ja: "小三元" },
+  "Sanshoku Doujun": { zh: "三色同顺", en: "Sanshoku Doujun", ja: "三色同順" },
+  Ittsuu: { zh: "一气通贯", en: "Ittsuu", ja: "一気通貫" },
+  Ryanpeikou: { zh: "两杯口", en: "Ryanpeikou", ja: "二盃口" },
+  Iipeikou: { zh: "一杯口", en: "Iipeikou", ja: "一盃口" },
+  Chinitsu: { zh: "清一色", en: "Chinitsu", ja: "清一色" },
+  Honitsu: { zh: "混一色", en: "Honitsu", ja: "混一色" },
+  "Kokushi Musou": { zh: "国士无双", en: "Kokushi Musou", ja: "国士無双" },
+};
+
+const BONUS_YAKU_PATTERNS = [
+  {
+    patterns: [/^Dora x(\d+)$/i, /^宝牌x(\d+)$/, /^ドラx(\d+)$/],
+    labels: { zh: "宝牌 x{n}", en: "Dora x{n}", ja: "ドラ x{n}" },
+  },
+  {
+    patterns: [/^Ura Dora x(\d+)$/i, /^里宝牌x(\d+)$/, /^裏ドラx(\d+)$/],
+    labels: { zh: "里宝牌 x{n}", en: "Ura Dora x{n}", ja: "裏ドラ x{n}" },
+  },
+  {
+    patterns: [/^Aka Dora x(\d+)$/i, /^红宝牌x(\d+)$/, /^赤ドラx(\d+)$/],
+    labels: { zh: "赤宝牌 x{n}", en: "Aka Dora x{n}", ja: "赤ドラ x{n}" },
+  },
+];
+
+const LIMIT_NAME_LABELS = {
+  满贯: { zh: "满贯", en: "Mangan", ja: "満貫" },
+  跳满: { zh: "跳满", en: "Haneman", ja: "跳満" },
+  倍满: { zh: "倍满", en: "Baiman", ja: "倍満" },
+  三倍满: { zh: "三倍满", en: "Sanbaiman", ja: "三倍満" },
+  役满: { zh: "役满", en: "Yakuman", ja: "役満" },
+  双倍役满: { zh: "双倍役满", en: "Double Yakuman", ja: "ダブル役満" },
+};
+
 function tr(key, vars = {}) {
   const dict = I18N[state.lang] || I18N.zh;
   let s = dict[key] ?? I18N.zh[key] ?? key;
@@ -1092,8 +1140,44 @@ function getRinshanRemain() {
 function yakuText(result) {
   if (!result || !Array.isArray(result.yaku)) return "-";
   return result.yaku
-    .map((y) => (typeof y === "string" ? y : `${y.name}(${y.han})`))
+    .map((y) => formatYakuLabel(y))
     .join(", ") || "-";
+}
+
+function localizeSimpleYakuName(name) {
+  if (!name) return "-";
+  const entry = YAKU_LABELS[name];
+  if (entry) return entry[state.lang] || entry.zh || name;
+  return name;
+}
+
+function localizeBonusYakuName(name) {
+  if (!name) return "-";
+  for (const entry of BONUS_YAKU_PATTERNS) {
+    for (const pattern of entry.patterns) {
+      const match = name.match(pattern);
+      if (!match) continue;
+      const template = entry.labels[state.lang] || entry.labels.zh || name;
+      return template.replace("{n}", match[1]);
+    }
+  }
+  return null;
+}
+
+function formatYakuLabel(yaku) {
+  if (typeof yaku === "string") {
+    return localizeBonusYakuName(yaku) || localizeSimpleYakuName(yaku);
+  }
+  if (!yaku || typeof yaku !== "object") return "-";
+  const name = localizeBonusYakuName(yaku.name) || localizeSimpleYakuName(yaku.name);
+  return typeof yaku.han === "number" ? `${name}(${yaku.han})` : name;
+}
+
+function localizeLimitName(name) {
+  if (!name) return "";
+  const entry = LIMIT_NAME_LABELS[name];
+  if (entry) return entry[state.lang] || entry.zh || name;
+  return name;
 }
 
 function pointTotal(result) {
@@ -3457,7 +3541,7 @@ function renderResultInfo() {
   const r = state.lastResult;
   const totalPoints = pointTotal(r);
   const pointLabel = r?.point?.label || "-";
-  const hanFuWithLimit = `${tr("resultHanFu", { han: r.han, fu: r.fu })}${r.limitName ? ` ${r.limitName}` : ""}`;
+  const hanFuWithLimit = `${tr("resultHanFu", { han: r.han, fu: r.fu })}${r.limitName ? ` ${localizeLimitName(r.limitName)}` : ""}`;
   const winTypeText = r.winType === "ron" ? tr("resultMetaWinRon") : tr("resultMetaWinTsumo");
   const riichiText = r.riichi ? tr("resultMetaRiichiOn") : tr("resultMetaRiichiOff");
   const winTile = r.winTile === null || r.winTile === undefined ? "-" : tileHtml(r.winTile, "large");
@@ -3670,7 +3754,7 @@ function renderRiichiScoreboard() {
     if (x.resultType !== "draw" && x.settle) {
       const settle = x.settle;
       const yakuLine = Array.isArray(settle.yaku) ? yakuText({ yaku: settle.yaku }) : "-";
-      const hanFuWithLimit = `${tr("resultHanFu", { han: settle.han || 0, fu: settle.fu || 0 })}${settle.limitName ? ` ${settle.limitName}` : ""}`;
+      const hanFuWithLimit = `${tr("resultHanFu", { han: settle.han || 0, fu: settle.fu || 0 })}${settle.limitName ? ` ${localizeLimitName(settle.limitName)}` : ""}`;
       resultHtml = `<div class="sb-result-lines">
         <div>${escapeHtml(tr("resultTitle"))}</div>
         <div>${escapeHtml(hanFuWithLimit)}</div>
